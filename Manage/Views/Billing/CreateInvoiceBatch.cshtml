@@ -1,0 +1,87 @@
+﻿@model InvoiceProject
+<div style="margin-left:10px">
+    <h2 class="paddingTop5">New Billing Invoice Batch</h2>
+
+    <form action="@Url.Action("CreateInvoiceBatch")" method="post">
+        <div class="textRed">
+            @Html.ValidationSummary()
+        </div>
+        <div class="divInvoiceRadioButtons">
+            <label class="lblHeader" for="inpTask">Generate invoice by Client, Employee, Project Number or Contract Number</label>
+            <div>
+                <label class="lblMargin"><input type="radio" id="radioGeneral" class="radioInvoiceSearch" name="InvoiceType" value="general" checked>General</label>
+                <label class="lblMargin"><input type="radio" id="radioCompanyName" class="radioInvoiceSearch" name="InvoiceType" value="client">Company Name</label>
+                <label class="lblMargin"><input type="radio" id="radioUsername" class="radioInvoiceSearch" name="InvoiceType" value="employee">Employee</label>
+                <label class="lblMargin"><input type="radio" id="radioProjectNumber" class="radioInvoiceSearch" name="InvoiceType" value="projectNumber">Project Number</label>
+                <label class="lblMargin"><input type="radio" id="radioContractNumber" class="radioInvoiceSearch" name="InvoiceType" value="contractNumber">Contract Number</label>
+            </div>
+            <input type="text" id="inpInvoiceGeneration" name="Filter" class="form-control ddl inpWidthTaskByCat ui-autocomplete-input" 
+                   data-url-autocomplete="@Url.Action("AutocompleteBilling")" autocomplete="off">
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <label>From Date</label>
+            </div>
+            <div class="col-md-2 marginbottom10">
+                <input type="text" name="FromDate" id="inpFromDate" class="form-control" autocomplete="off" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <label>To Date</label>
+            </div>
+            <div class="col-md-2 marginbottom10">
+                <input type="text" name="ToDate" id="inpToDate" class="form-control" autocomplete="off" />
+            </div>
+        </div>
+
+        <input type="submit" class="btn btn-primary" value="Create Invoice Batch" />
+        <input type="hidden" id="invoiceCreated" value="@ViewBag.InvoiceCreated" />
+    </form>
+</div>
+<script>
+    $(function () {
+        const pickerFromDate = datepicker('#inpFromDate', {
+            formatter: (input, date, instance) => {
+                const value = date.toLocaleDateString();
+                input.value = value;
+            }
+        });
+
+        const pickerToDate = datepicker('#inpToDate', {
+            formatter: (input, date, instance) => {
+                const value = date.toLocaleDateString();
+                input.value = value;
+            }
+
+        });
+
+        if ($('#invoiceCreated').val() === 'created') {
+            $.notify('Invoice Batch was sucessfully created', 'success');
+        }
+        $('#radioGeneral').click(function () {
+            $('#inpInvoiceGeneration').css('display', 'none');
+        });
+        $('#radioCompanyName').click(function () {
+            SetInputPlaceHolder('Type Client Company Name');
+        });
+        $('#radioUsername').click(function () {
+            SetInputPlaceHolder('Type Employee Username');
+        });
+        $('#radioProjectNumber').click(function () {
+            SetInputPlaceHolder('Type Project Number');
+        });
+        $('#radioContractNumber').click(function () {
+            SetInputPlaceHolder('Type Contract Number');
+        });
+
+        function SetInputPlaceHolder(placeholderContent) {
+            $('#inpInvoiceGeneration').css('display', 'block');
+            $('#inpInvoiceGeneration').attr('placeholder', placeholderContent);
+            return false;
+        }
+
+    })
+</script>

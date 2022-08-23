@@ -1,0 +1,114 @@
+﻿@model Dictionary<string, List<InvoiceAgingReport>>
+@{
+    Layout = null;
+}
+
+@{
+    decimal totalBalance = 0;
+    var invoiceByAgingCounter = 0;
+    var invoiceGroupedByAgingDictionaryCounter = 0;
+    var displayTotalBalance = "";
+}
+<table class="tbReport">
+    <tr>
+        <th class="thReport">Type</th>
+        <th class="thReport">Date</th>
+        <th class="thReport">Num</th>
+        <th class="thReport">Name</th>
+        <th class="thReport">Due Date</th>
+        <th class="thReport">Rep</th>
+        <th class="thReport">Company Name</th>
+        <th class="thReport">Aging</th>
+        <th class="thReport">Open Balance</th>
+    </tr>
+    @foreach (var invoiceGroupedByAgingDictionary in Model)
+    {
+        invoiceGroupedByAgingDictionaryCounter++;
+        <tr><td>@invoiceGroupedByAgingDictionary.Key</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+
+        @foreach (var invoiceByAging in invoiceGroupedByAgingDictionary.Value)
+        {
+            invoiceByAgingCounter++;
+            <tr>
+                <td>@invoiceByAging.Type</td>
+                <td>@invoiceByAging.Date.ToString("MM/dd/yyyy")</td>
+                <td>@invoiceByAging.Num</td>
+                <td>@invoiceByAging.Name</td>
+                <td>@invoiceByAging.DueDate.ToString("MM/dd/yyyy")</td>
+                <td>@invoiceByAging.Rep</td>
+                <td>@invoiceByAging.CompanyName</td>
+                @if (invoiceByAging.Aging < 0)
+                {
+                    <td></td>
+                }
+                else
+                {
+                    <td>@invoiceByAging.Aging</td>
+                }
+                @if (invoiceByAgingCounter == invoiceGroupedByAgingDictionary.Value.Count())
+                {
+                    <td>@invoiceByAging.Balance.ToString("F")</td>
+                }
+                else
+                {
+                    <td>@invoiceByAging.Balance.ToString("F")</td>
+                }
+            </tr>
+        }
+<tr>
+    <td>Total @invoiceGroupedByAgingDictionary.Key</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    @{
+        totalBalance += invoiceGroupedByAgingDictionary.Value.Sum(i => i.Balance);
+        displayTotalBalance = invoiceGroupedByAgingDictionary.Value.Sum(i => i.Balance) != 0 ? totalBalance.ToString("F") : "";
+    }
+
+    @if (invoiceGroupedByAgingDictionaryCounter == Model.Count())
+    {
+        <td class="underlineBottom">@displayTotalBalance</td>
+
+    }
+    else
+    {
+        <td>@displayTotalBalance</td>
+    }
+    @*}*@
+</tr>
+<tr>
+    <td style="font-weight:bold;">TOTAL</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td class="spnTotalBalance" style="font-weight:bold;">@totalBalance.ToString("F")</td>
+</tr>
+    }
+</table>
+
+<style>
+    .thReport {
+        border-bottom: solid black;
+        border-width: 1px;
+        padding: 0 15px 0 15px;
+    }
+
+    table {
+        border-spacing: 10px;
+        border-collapse: separate;
+        width: 900px;
+        margin-left: 100px;
+    }
+
+    .tbReport td {
+        text-align: center;
+    }
+</style>

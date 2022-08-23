@@ -1,0 +1,158 @@
+﻿@{
+    Layout = null;
+    var logoUrl = new Uri($"{Context.Request.Scheme}://{Context.Request.Host}/images/BioTech-logo-f-rgb.jpg").AbsoluteUri;
+}
+@model InvoiceProject
+
+<div style="margin:auto;">
+    <div style="vertical-align: top;margin:5px 0 0 50px;float:left;">
+        <img style="width:350px;" src="@logoUrl" />
+        <br />
+        <div style="margin-left: 50px;">
+            <span>3025 E. South Street | Orlando, FL 32803</span>
+            <br />
+            <span>(407) 894-5969 | info@btc-inc.com</span>
+            <br />
+            <span>(877) 894-5969 | www.bio-techconsulting.com</span>
+        </div>
+    </div>
+    <div style="margin:100px 50px 0 800px;text-align: right;">
+        <span style="font-size:34px;font-weight:bold;">Invoice</span>
+        <br />
+        <div>
+            <span style="font-weight:bold;">Invoice #:</span><span> @Model.InvoiceNumber</span>
+        </div>
+        <div>
+            <span style="font-weight:bold;">Invoice Date: </span><span> @Model.InvoiceDate.ToString("MM/dd/yyyy")</span>
+        </div>
+        <div>
+            <span style="font-weight:bold;">Project Manager: </span> <span> @Model.ProjectManager</span>
+        </div>
+        <div>
+            <span style="font-weight:bold;">Project #: </span> <span> @Model.ProjectNumber</span>
+        </div>
+        <div>
+            <span style="font-weight:bold;">Contract #: </span> <span> @Model.ContractNumber</span>
+        </div>
+    </div>
+</div>
+@{
+    if (String.Equals(Model.Status, "pending", StringComparison.OrdinalIgnoreCase))
+    {
+        <span style="font-family: Stencil; font-size: 110px;">Pending</span>
+    }
+}
+
+<div style="margin-top: 70px;display: block;margin-left:100px">
+    <div style="display:block;">
+        <div>
+            <span style="font-weight:bold;">Bill To:</span>            
+        </div>
+        <div>
+            <span style="font-weight:bold;">Project Name: </span><span> @Model.ProjectTitle</span>
+        </div>
+        <div>
+            <span>@Model.Contact.Company?.Name</span>
+        </div>
+        <div>
+            <span>@Model.Contact.Company?.AddressLine1</span>
+        </div>
+        <div>
+            <span>@Model.Contact.Company?.AddressLine2</span>
+        </div>
+        <div>
+            <span>@($"{Model.Contact.Company?.City}, {Model.Contact.Company?.State} {Model.Contact.Company?.ZipCode}") </span>
+        </div>
+    </div>
+</div>
+
+
+<div style="background: #C8C8C8;width: 200px;margin-left: 530px;height: 30px;margin-bottom: 5px;">
+    <span style="margin-left: 30px;line-height: 30px;">Terms :</span>
+    <span style="margin-left:50px;">Net 30</span>
+</div>
+
+<table style="width:90%;">
+    <colgroup>
+        <col style="text-align: center;width: 5%;">
+        <col span="1" style="width: 5%;">
+        <col span="1" style="width: 15%;">
+        <col span="1" style="width: 5%;">
+        <col span="1" style="width: 5%;">
+        <col span="1" style="width: 5%;">
+        <col span="1" style="width: 5%;">
+        <col span="1" style="width: 5%;">
+        <col span="1" style="width: 5%;">
+    </colgroup>
+    <tr style="font-weight:bold;">
+        <td style="text-align: center;width: 80px;">Date</td>
+        <td style="text-align: center;width: 50px">Item #</td>
+        <td style="text-align:center;">Description</td>
+        <td style="text-align:center;">Contract</td>
+        <td style="text-align:center;">Rate</td>
+        <td style="text-align:center;">Prev</td>
+        <td style="text-align:center;">Qty</td>
+        <td style="text-align:center;">Total %</td>
+        <td style="text-align:center;">Amount</td>
+    </tr>
+    @{
+        CultureInfo ci = new CultureInfo("en-us");
+        foreach (var timesheetEntry in Model.InvoiceTimesheetEntries)
+        {
+            var prevFormatted = timesheetEntry.Prev == 0 ? "0" : timesheetEntry.Prev.ToString("C", ci);
+            <tr>
+                <td style="border: 1px solid black;text-align:center;">@timesheetEntry.DateModified.ToString("MM/dd/yyyy")</td>
+                <td style="border: 1px solid black;text-align:center;">@timesheetEntry.TaskNumber</td>
+                <td style="border: 1px solid black; word-wrap: break-word;">@timesheetEntry.TaskName</td>
+                <td style="border: 1px solid black;text-align:center;">@timesheetEntry.Contract.ToString("C", ci)</td>
+                <td style="border: 1px solid black;text-align:center;">@timesheetEntry.RateUsed.ToString("C", ci)</td>
+                <td style="border: 1px solid black;text-align:center;">@prevFormatted</td>
+                <td style="border: 1px solid black;text-align:center;">@timesheetEntry.Qty</td>
+                <td style="border: 1px solid black;text-align:center;">@timesheetEntry.TotalPercentage.ToString("0.##") %</td>
+                <td style="border: 1px solid black;text-align:center;">@timesheetEntry.Amount.ToString("C", ci)</td>
+            </tr>
+        }
+    }
+</table>
+<div style="margin:auto">
+    <div style="border:2px solid black;width:320px;height:80px;float:left;margin:10px 0 0 48px;">
+        <p style="padding: 15px 0 0 20px;font-weight: bold;font-size: 18px;">***We appreciate your business!***</p>
+    </div>
+
+    <div style="font-size: 18px;margin:10px 0 0 608px;">
+        <div style="border-top: 2px solid black;border-bottom: 2px solid black;width: 345px;margin: 5px 0 5px 0;height: 30px;">
+            <span style="font-weight: bold;line-height: 30px;">Current Charges: </span> <span>@($"{Model.TotalInvoiced.ToString("C", ci)}")</span>
+        </div>
+        <div style="border-top: 2px solid black;border-bottom: 2px solid black;width: 345px;margin: 5px 0 5px 0;height: 30px;">
+            <span style="font-weight: bold;line-height: 30px;">Payment/Credits: </span> <span>
+            @($"{Model.PartialPayments.Sum(pp => pp.Amount).ToString("C", ci)}")</span>
+        </div>
+        <div style="border-top: 2px solid black;border-bottom: 2px solid black;width: 345px;margin: 5px 0 5px 0;height: 30px;">
+            <span style="font-weight: bold;line-height: 30px;">Invoice Total: </span> <span>@Model.TotalInvoiced.ToString("C", ci)</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    h1,
+    h3 {
+        text-align: center;
+    }
+
+    table {
+        border-spacing: 0px;
+        table-layout: fixed;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    th {
+        color: green;
+        border: 1px solid black;
+    }
+
+    td {
+        border: 1px solid black;
+        word-wrap: break-word;
+    }
+</style>

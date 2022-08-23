@@ -1,0 +1,109 @@
+﻿@using BioTech.ViewModels
+@model CompanyViewModel
+@{
+    Layout = null;    
+}
+<div id="divErrorMessage"></div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="pad">
+            <form data-url="@Url.Action("CompanyAddEdit", "Admin")" id="formCompanyAddEdit">            
+                @Html.HiddenFor(m => m.Id)              
+
+                <div class="row">
+                    <div class="col">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="col">
+                        <label asp-for="AddressLine1" class="control-label"></label>
+                        <input asp-for="AddressLine1" class="form-control" />
+                        <span asp-validation-for="AddressLine1" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label asp-for="AddressLine2" class="control-label"></label>
+                        <input asp-for="AddressLine2" class="form-control" />
+                        <span asp-validation-for="AddressLine2" class="text-danger"></span>
+                    </div>
+                    <div class="col">
+                        <label asp-for="City" class="control-label"></label>
+                        <input asp-for="City" class="form-control" />
+                        <span asp-validation-for="City" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        @Html.LabelFor(m => m.State)
+                        @Html.DropDownListFor(m => m.State, Model.AvailableStates, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.State)
+                    </div>
+                    <div class="col">
+                        <label asp-for="ZipCode" class="control-label"></label>
+                        <input asp-for="ZipCode" class="form-control" />
+                        <span asp-validation-for="ZipCode" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label asp-for="Phone" class="control-label"></label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                    <div class="col">
+                        <label asp-for="CompanyFax" class="control-label"></label>
+                        <input asp-for="CompanyFax" class="form-control" />
+                        <span asp-validation-for="CompanyFax" class="text-danger"></span>
+                    </div>
+                </div>
+                <p>
+                    @Html.ValidationSummary()
+                </p>
+                <button class="btn btn-primary" id="btnSaveCompanyAddEdit">Save</button>             
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).on('click', '#btnSaveCompanyAddEdit', function () {     
+        let formData = $('#formCompanyAddEdit').serialize();
+        let url = $('#formCompanyAddEdit').data('url');     
+        $.ajax({
+            type: 'post',
+            url: url,
+            data: formData,
+            dataType: 'json',
+            success: function (dataResponse) {  
+                $("#divErrorMessage").empty();
+                if (JSON.stringify(dataResponse).indexOf('error') !== -1) {
+                    var errors = [];                    
+                    $.each(dataResponse, function (key, val) {  
+                    errors.push('<li class="textRed">' + val + '</li>');
+                });                   
+                $( "<ul/>", {
+    "class": "my-new-list",
+    html: errors.join( "" )
+  }).appendTo("#divErrorMessage");
+                }   
+                else {
+                    var companies = [];                 
+                    $.each(dataResponse, function (key, val) {    
+                        companies.push('<option value="'+ val.Id +'">'+ val.Name +'</option>');
+                    });        
+                    $('.selectCompany').html(companies);
+                    $('#modalCompany').modal('hide');
+                }
+            },
+            error: function (message) {               
+                console.log('an error occurred ' + JSON.stringify(message));               
+            }
+        })
+        return false;
+    });
+</script>
+
+

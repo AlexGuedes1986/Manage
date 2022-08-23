@@ -1,0 +1,129 @@
+﻿@using Newtonsoft.Json
+@model List<TaskExtensionViewModel>
+@{
+    Layout = null;
+    var modelToJson = JsonConvert.SerializeObject(Model, Formatting.Indented, new JsonSerializerSettings {
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+    });
+}
+@*<div class="paddingBottom row col-md-7 offset-3">
+    <button class="btn btn-primary floatRight" id="btnImportAllTasks">Import all Tasks</button>
+</div>*@
+<input type="hidden" id="containerTaskExtensions" value="@modelToJson" data-url-multiple-tasks="@Url.Action("AddMultipleTasksToProposal")" />
+
+@foreach (var taskExtension in Model)
+{
+    <form class="formTaskFromProposal" data-add-task-url="@Url.Action("AddTaskToProposal")">
+        <div class="divBorderTask parentTaskDiv">
+            <div class="taskContent">
+                <h5>@taskExtension.FormattedTaskName</h5>
+                <p>@taskExtension.TaskDescription</p>
+            </div>
+            <input type="hidden" name="TaskBioTechId" value="@taskExtension.TaskBioTechId" />
+            <div class="row taskContent">
+                <div class="col-md-2">
+                    @Html.LabelFor(m => taskExtension.FeeStructure)
+                </div>
+                <div class="col-md-8">
+                    <select class="form-control ddlFeeStructure" name="FeeStructure" id="feeStructure">
+                        <option value="@taskExtension.FeeStructure">@taskExtension.FeeStructure</option>
+                        @{
+                            foreach (var availableFeeStruct in taskExtension.AvailableFeeStructures)
+                            {
+                                <option value="@availableFeeStruct.Value">@availableFeeStruct.Text</option>
+                            }
+                        }
+                    </select>
+                    @Html.ValidationMessageFor(m => taskExtension.FeeStructure)
+                </div>
+            </div>
+
+            <div class="row taskContent divEventPrice">
+                <div class="col-md-2">
+                    @Html.LabelFor(m => taskExtension.InstancePrice)
+                </div>
+                <div class="col-md-8">
+                    <input id="InstancePrice" value="@taskExtension.InstancePrice" name="InstancePrice" class="form-control inpTask" />
+                    @Html.ValidationMessageFor(m => taskExtension.InstancePrice)
+                </div>
+            </div>
+
+            <div class="row divRecurring taskContent">
+                <div class="col-md-2">
+                    <label for="numberOfInstances"># of Instances</label>
+                </div>
+                <div class="col-md-8">
+                    <input id="NumberOfInstances" type="number" value="@taskExtension.NumberOfInstances" name="NumberOfInstances"
+                           class="form-control inpTask" min="0" />
+                    <select class="form-control ddlIntervalType" name="IntervalType">
+                        @{
+                            if (taskExtension.IntervalType != null)
+                            {
+                                <option value="@taskExtension.IntervalType">@taskExtension.IntervalType</option>
+                            }
+
+                            foreach (var availableIntervalType in taskExtension.AvailableIntervalTypes)
+                            {
+                                <option value="@availableIntervalType.Value">@availableIntervalType.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="row taskContent divTotalPrice">
+                <div class="col-md-2">
+                    <label for="TotalPrice">Total Price</label>
+                </div>
+                <div class="col-md-8">
+                    <input value="@taskExtension.TotalPrice" name="TotalPrice" class="form-control inpTask" id="TotalPrice" />
+                    @Html.ValidationMessageFor(m => taskExtension.TotalPrice)
+                </div>
+                <div>
+                    <i class="fa fa-check ion-checkmark divAddedMessage hideElement" aria-hidden="true"></i>
+                </div>
+            </div>
+
+            <div class="row taskContent divNotToExceedTotalPrice">
+                <div class="col-md-2 inlineBlock">
+                    <label asp-for="@taskExtension.NotToExceedTotalPrice"></label>
+                </div> 
+                <div class="col-md-9 inlineBlock">
+                    <input id="NotToExceedTotalPrice" class="form-control inpTask" type="text" value="@taskExtension.NotToExceedTotalPrice" name="NotToExceedTotalPrice" min="0" />
+                    @Html.ValidationMessageFor(te => taskExtension.NotToExceedTotalPrice)
+                </div>
+            </div>
+
+            <div class="row taskContent">
+                <div class="col-md-2">
+                    @Html.LabelFor(m => taskExtension.Note)
+                </div>
+
+                <div class="col-md-8">
+                    <textarea class="form-control" id="Note" name="Note">@taskExtension.Note</textarea>
+                    @Html.ValidationMessageFor(m => taskExtension.Note)
+                </div>
+            </div>
+
+            <div class="form-group btnRight">
+                <button type="button" class="btn btn-primary btnAddTaskToProposal">Add Task</button>
+            </div>
+            <div class="divTaskPostMessage"></div>
+        </div>
+        <input type="hidden" class="proposalIdTaskExtension" name="ProposalId" />  
+        <input type="hidden" name="TaskCodeSub" value="@taskExtension.TaskCodeSub" />
+        <input type="hidden" name="Category" value="@taskExtension.Category" />
+        <input type="hidden" name="TaskCodeParent" value="@taskExtension.TaskCodeParent" />
+        <input type="hidden" name="TaskDescription" value="@taskExtension.TaskDescription" />
+        <input type="hidden" name="TaskTitle" value="@taskExtension.TaskTitle" />
+    </form>
+}
+
+<script>
+    $(function () {      
+         SetupTasks();
+    });
+</script>
+
+
+

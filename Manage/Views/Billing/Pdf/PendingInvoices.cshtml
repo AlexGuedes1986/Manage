@@ -1,0 +1,53 @@
+﻿@model List<PendingInvoice>
+@{ 
+    Layout = null;
+    CultureInfo ci = new CultureInfo("en-us");
+}
+
+<table class="tbReport">
+    <tr>
+        <th>Type</th>
+        <th>Date</th>
+        <th>Num</th>
+        <th>Name</th>
+        <th>Rep</th>
+        <th>Company Name</th>
+        <th>Amount</th>
+    </tr>
+    @foreach (var invoice in Model)
+    {
+<tr>
+    <td>@invoice.Type</td>
+    <td>@invoice.Date.ToString("MM/dd/yyyy")</td>
+    <td>@invoice.Num</td>
+    <td>@invoice.Name</td>
+    <td>@invoice.Rep</td>
+    <td>@invoice.CompanyName</td>
+    <td>@invoice.Balance.ToString("C", ci)</td>
+</tr>
+    }
+<tr class="bold"><td>Total</td><td></td><td></td><td></td><td></td><td></td><td style="border-bottom:solid black;">@Model.Sum(i => i.Balance).ToString("C", ci)</td></tr>
+</table>
+
+<style>
+    .bold {
+        font-weight: bold;
+    }
+
+    th {
+        border-bottom: solid black;
+        border-width: 1px;
+        padding: 0 15px 0 15px;
+    }
+
+    table {
+        border-spacing: 10px;
+        border-collapse: separate;
+        width: 900px;
+        margin-left: 100px;
+    }
+    .tbReport td {
+        text-align: center;
+        margin-left: 200px;
+    }
+</style>

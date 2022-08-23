@@ -1,0 +1,105 @@
+﻿@using BioTech.ViewModels
+
+@model UserRegistrationViewModel
+
+<div class="paddingTop5">
+    <h3 class="inlineBlock">Update User Registration</h3>
+</div>
+<div>
+    <a href="@Url.Action("ChangePassword", new {userId = Model.Id })" class="btn btn-primary floatRight marginRight10">Change Password</a>
+</div>
+<div class="row">
+    <div class="col-md-10">
+        <div class="pad">
+
+            @using (Html.BeginForm("EditUser", "Admin", FormMethod.Post, new { id = "userEditForm", role = "form" }))
+            {
+
+                <p></p>
+
+                @Html.ValidationSummary(false, "", new { @class = "text-danger field-validation-error" })
+
+                @Html.HiddenFor(m => m.Id)
+
+                <div class="row">
+                    <div class="col">
+                        <label asp-for="FirstName" class="control-label"></label>
+                        <input asp-for="FirstName" class="form-control" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="col">
+                        <label asp-for="LastName" class="control-label"></label>
+                        <input asp-for="LastName" class="form-control" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                    </div>
+
+                    <div class="col">
+                        <label asp-for="UserName" class="control-label"></label>
+                        <input asp-for="UserName" class="form-control" />
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label asp-for="Phone" class="control-label"></label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="IsActive" class="control-label check-label">
+                        <span class="label-text">Is Active</span>
+                        @Html.CheckBoxFor(m => m.IsActive)
+                        <span class="checkmark"></span>
+                        <span asp-validation-for="IsActive" class="text-danger"></span>
+                    </label>
+                </div>
+
+
+
+                <div class="row">
+                    <div class="col">
+                        <h4>Website Roles</h4>
+                        @{
+                            for (int i = 0; i < Model.WebsiteRoles.Count(); i++)
+                            {
+                                <div>
+                                    @Html.CheckBoxFor(m => m.WebsiteRoles[i].IsSelected, new { id = Model.WebsiteRoles[i].Name })
+                                    <label class="lblRole" for="@Model.WebsiteRoles[i].Name">@Model.WebsiteRoles[i].Name</label>
+                                    @Html.HiddenFor(m => m.WebsiteRoles[i].Name)
+                                </div>
+                            }
+                        }
+                        <span asp-validation-for="Role" class="text-danger"></span>
+                    </div>
+
+                    <div class="col">
+                        <h4>Billing Roles</h4>
+                        @{
+                            foreach (var role in Model.BillingRoles.OrderBy(br => br.Text))
+                            {
+                                <div>
+                                    <input type="radio" id="@role.Value" asp-for="BillingRoleId" value="@role.Value" />
+                                    <label for="@role.Value" class="lblRole"> @role.Text </label>
+                                </div>
+                            }
+                        }
+                        <span asp-validation-for="BillingRoleId" class="text-danger"></span>
+                    </div>
+                </div>
+
+
+
+
+                <input type="submit" class="btn btn-primary" value="Save" />
+                <a href="/Admin" class="btn btn-default">Cancel</a>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,39 @@
+﻿<div class="divReportRadioButtons">
+    <label class="lblHeader" for="inpTask">Generate report by Client, Employee, Project Number or Contract Number</label>
+    <div>
+        <label class="lblMargin"><input type="radio" id="radioGeneral" class="radioReportSearch" name="FilterType" value="general" checked>General</label>
+        <label class="lblMargin"><input type="radio" id="radioCompanyName" class="radioReportSearch" name="FilterType" value="client">Company Name</label>
+        <label class="lblMargin"><input type="radio" id="radioUsername" class="radioReportSearch" name="FilterType" value="employee">Employee</label>
+        <label class="lblMargin"><input type="radio" id="radioProjectNumber" class="radioReportSearch" name="FilterType" value="projectNumber">Project Number</label>
+        <label class="lblMargin"><input type="radio" id="radioContractNumber" class="radioReportSearch" name="FilterType" value="contractNumber">Contract Number</label>
+    </div>
+    <input type="text" id="inpReportGeneration" name="FilterValue" class="form-control ddl inpWidthTaskByCat ui-autocomplete-input"
+           data-url-autocomplete="@Url.Action("AutocompleteBilling")" autocomplete="off">
+</div>
+
+
+<script>
+
+    $('#radioGeneral').click(function () {
+        $('#inpReportGeneration').css('display', 'none');
+    });
+    $('#radioCompanyName').click(function () {
+        SetInputPlaceHolder('Type Client Company Name');
+    });
+    $('#radioUsername').click(function () {
+        SetInputPlaceHolder('Type Employee Username');
+    });
+    $('#radioProjectNumber').click(function () {
+        SetInputPlaceHolder('Type Project Number');
+    });
+    $('#radioContractNumber').click(function () {
+        SetInputPlaceHolder('Type Contract Number');
+    });
+
+    function SetInputPlaceHolder(placeholderContent) {
+        $('#inpReportGeneration').css('display', 'block');
+        $('#inpReportGeneration').attr('placeholder', placeholderContent);
+        return false;
+    }
+
+</script>

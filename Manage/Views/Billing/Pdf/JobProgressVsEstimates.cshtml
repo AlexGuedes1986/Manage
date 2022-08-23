@@ -1,0 +1,68 @@
+﻿@model List<JobProgressVsEstimate>
+@{
+    Layout = null;
+    CultureInfo ci = new CultureInfo("en-us");
+}
+<table class="tbReport">
+    <tr>
+        <th>Type</th>
+        <th>Date</th>
+        <th>Num</th>
+        <th>Rep</th>
+        <th>Company Name</th>
+        <th>Contract Active</th>
+        <th>Contract Total</th>
+        <th>Progress Invoice</th>
+        <th>% Progress</th>
+    </tr>
+    @{
+        foreach (var invoiceProject in Model)
+        {
+            <tr class="bold"><td>@invoiceProject.ProjectFormattedTitle</td></tr>
+            foreach (var invoice in invoiceProject.InvoicesRelated)
+            {
+                <tr class="bold"><td>@invoice.ContractNumber</td></tr>
+                <tr>
+                    <td>@invoice.Type</td>
+                    <td>@invoice.Date.ToString("MM/dd/yyyy")</td>
+                    <td>@invoice.Num</td>
+                    <td>@invoice.Rep</td>
+                    <td>@invoice.CompanyName</td>
+                    @if (invoice.EstimateActive)
+                    {
+                    <td>X</td>
+                    }
+                    else
+                    {
+                    <td></td>
+                    }
+                    <td>@invoice.EstimateTotal.ToString("C", ci)</td>
+                    <td>@invoice.ProgressInvoice.ToString("C", ci)</td>
+                    <td>@invoice.PercentageProgress.ToString("F")%</td>
+                </tr>
+            }
+        }
+    }
+</table>
+
+<style>
+    .bold {
+        font-weight: bold;
+    }
+
+    th {
+        border-bottom: solid black;
+        border-width: 1px;
+        padding: 0 15px 0 15px;
+    }
+
+    table {
+        border-spacing: 10px;
+        border-collapse: separate;
+        width: 1200px;              
+    }
+    .tbReport td {
+        text-align: center;
+        margin-left: 200px;
+    }
+</style>

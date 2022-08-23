@@ -1,0 +1,95 @@
+﻿@using BioTech.ViewModels
+@{
+    ViewData["Title"] = "Contacts";
+}
+
+@Html.AntiForgeryToken()
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-address-book"></i> CONTACTS</h2>
+</div>
+<div class="row rowNoMarginSide" style="width:100%">
+    <div class="col-md-12">
+        <div class="pad">
+            @(Html.Kendo().Grid<ContactFlatKendoGridVM>()
+                       .Name("contactTable")
+                       .Columns(columns =>
+                       {
+                           columns.Bound(c => c.Id).Title("&nbsp;")
+                               .ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Contact/ContactAddEdit/${id}'><span class='k-icon k-i-edit'></span>Edit</a>")
+                               .Width(80).Filterable(false);
+                           columns.Bound(c => c.FirstName).Title("First Name").Width(120);
+                           columns.Bound(c => c.LastName).Title("Last Name").Width(120);
+                           columns.Bound(c => c.EmailAddress).Title("Email").Width(160);
+                           columns.Bound(c => c.BussinessPhone).Title("Business Phone").Width(100);
+                           columns.Bound(c => c.CompanyName).Title("Company Name").Width(160);
+                           columns.Bound(c => c.Active).Title("Active")
+                                    .ClientTemplate("<i class='ion-checkmark #= Active ? '': 'invisible' #' aria-hidden='true'></i>")
+                                    .Width(70).Filterable(false);
+                           columns.Bound(c => c.Id).Title("&nbsp;")
+                             .ClientTemplate(@"<a role='button' class='k-button k-button-icontext btnKendoDeactivate' data-url='/Contact/Contact_Update/${id}'
+                                data-id='${id}'><span class='k-icon k-i-edit'></span>#= Active ? 'Deactivate': 'Activate' #</a>").Width(80).Filterable(false);
+                           columns.Bound(c => c.Id).Title("&nbsp;")
+                               .ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Contact/ContactDetails/${id}'><span class='k-icon k-i-arrow-right'></span>Details</a>")
+                               .Width(80).Filterable(false);
+                       })
+                       .ToolBar(toolbar =>
+                           toolbar.ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Contact/ContactAddEdit'><span class='k-icon k-i-plus'></span>Add Contact</a>")
+                       )
+                       .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+                       .Pageable(p => p.PageSizes(new int[4] { 10, 20, 50, 100 }))
+                       .Sortable()
+                       .Scrollable(s => s.Height(485))
+                       .Resizable(r => r.Columns(true))
+                       .DataSource(dataSource => dataSource
+                           .Ajax()
+                           .PageSize(10)
+                           .Events(events => events.Error("error_handler"))
+                           .Model(model => model.Id(p => p.Id))
+                           .Create(update => update.Action("ContactAddEdit", "Contact"))
+                           .Read(read => read.Action("Contacts_Read", "Contact"))
+                           .Update(update => update.Action("Contact_Update", "Contact"))                          
+                           .Destroy(update => update.Action("Contact_Destroy", "Contact"))
+                       )
+            )
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var grid = $("#contactTable").data("kendoGrid");
+        var companyGrid = $("#contactTable").data("kendoGrid");       
+        $(document).on('click', '.btnKendoDeactivate', function () {
+            let id = $(this).data('id');
+            let url = $(this).data('url');
+            let type = $(this).text();
+            $.ajax({
+                type: 'post',
+                url: url,
+                data: { id: id, type: type },
+                success: function () {
+                    location.reload();
+                },
+                error: function (errMessage) {
+                    console.log('There was an error trying to deactivate a contact: ' + JSON.stringify(errMessage));
+                }
+            })
+        });    
+    });
+
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+</script>

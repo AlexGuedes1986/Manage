@@ -1,0 +1,132 @@
+﻿@model Contact
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-address-book"></i> CONTACTS</h2>
+</div>
+
+<div>
+    <a href="@Url.Action("Index")" class="btn btn-primary floatRight marginRight10">Go to Contacts</a>
+    @{
+        if (ViewBag.CanEdit)
+        {
+            <a href="@Url.Action("ContactAddEdit", new { Id = Model.Id})" class="btn btn-primary floatRight marginRight10">Edit Contact</a>
+        }
+    }
+</div>
+<h4 class="marginLeft10">Contact Details</h4>
+
+<div class="pad">
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Name:</dt>
+            <dd class="col-sm-9 noMarginBottom">@($"{Model.FirstName} {Model.LastName}")</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Email:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.EmailAddress</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Mobile Phone:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.MobilePhone</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Business Phone:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.BusinessPhone</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Job Title:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.JobTitle</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Suffix:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.Suffix</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Contact Type:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.ContactType</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Company:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.Company.Name</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Company Address:</dt>
+            <dd class="col-sm-9 noMarginBottom">
+                @String.Format(Model.Company.AddressLine1 + ", " + Model.Company.City + ", " + Model.Company.State + "" +
+           ", " + Model.Company.ZipCode)
+            </dd>
+        </dl>
+    </div>
+</div>
+
+@if (Model.Id > 0)
+{
+
+    <div class="pad">
+        @(Html.Kendo().Grid<TouchLog>
+        ()
+        .Name("touchlogTable")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.Date).Title("Date").Width(120).ClientTemplate(@"#= kendo.toString(Date,'MM/dd/yyyy') #");
+            columns.Bound(c => c.Employee).Title("Employee").Width(120);
+            columns.Bound(c => c.Log).Title("Log").Width(120);
+            columns.Bound(c => c.Type).Title("Type").Width(100);
+        })
+        .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+        .Sortable()
+        .Scrollable(s => s.Height(485))
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(10)
+        .Events(events => events.Error("error_handler"))
+        .Model(model => model.Id(p => p.Id))
+        .Read(read => read.Action("TouchLogs_Read", "Contact", new { contactId = Model.Id }))
+        )
+        )
+    </div>
+
+    <input type="hidden" id="inpAddEditCompanyUrl" data-url="@Url.Action("CompanyAddEdit","Admin")" />
+
+    <script>
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                alert(message);
+            }
+        }
+
+        var grid = $("#touchLogTable").data("kendoGrid");
+        var companyGrid = $("#touchLogTable").data("kendoGrid");
+    </script>
+}

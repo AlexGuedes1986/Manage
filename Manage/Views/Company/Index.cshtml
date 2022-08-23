@@ -1,0 +1,75 @@
+﻿@using BioTech.ViewModels
+@{
+    ViewData["Title"] = "Contacts";
+}
+
+@Html.AntiForgeryToken()
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-address-book"></i> COMPANIES</h2>
+</div>
+<div class="row rowNoMarginSide" style="width:100%">
+    <div class="col-md-12">
+        <div class="pad">
+            @(Html.Kendo().Grid<Company>()
+                       .Name("companyTable")
+                       .Columns(columns =>
+                       {
+                           columns.Bound(c => c.Id).Title("&nbsp;")
+                               .ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Company/CompanyAddEdit/${id}'><span class='k-icon k-i-edit'></span>Edit</a>")
+                               .Width(80).Filterable(false);
+                           columns.Bound(c => c.Name).Title("Name").Width(160);
+                           columns.Bound(c => c.AddressLine1).Title("Address Line 1").Width(160);
+                           columns.Bound(c => c.City).Title("City").Width(130);
+                           columns.Bound(c => c.State).Title("State").Width(100);
+                           columns.Bound(c => c.ZipCode).Title("Zip Code").Width(80);
+                             columns.Bound(c => c.Phone).Title("Phone").Width(120);
+                           columns.Command(command => { command.Destroy(); }).Width(80);
+                           columns.Bound(c => c.Id).Title("&nbsp;")
+                               .ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Company/CompanyDetails/${id}'><span class='k-icon k-i-arrow-right'></span>Details</a>")
+                               .Width(80).Filterable(false);
+                       })
+                       .ToolBar(toolbar =>
+                           toolbar.ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Company/CompanyAddEdit'><span class='k-icon k-i-plus'></span>Add Company</a>")
+                       )
+                       .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+                       .Pageable(p => p.PageSizes(new int[4] { 10, 20, 50, 100 }))
+                       .Sortable()
+                       .Scrollable(s => s.Height(485))
+                       .Resizable(r => r.Columns(true))
+                       .DataSource(dataSource => dataSource
+                           .Ajax()
+                           .PageSize(10)
+                           .Events(events => events.Error("error_handler"))
+                           .Model(model => model.Id(p => p.Id))
+                           .Create(update => update.Action("CompanyAddEdit", "Company"))
+                           .Read(read => read.Action("Companies_Read", "Company"))
+                           .Update(update => update.Action("CompanyAddEdit", "Company"))
+                           .Destroy(update => update.Action("Company_Destroy", "Company"))
+                       )
+            )
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var grid = $("#companyTable").data("kendoGrid");
+        var companyGrid = $("#companyTable").data("kendoGrid");
+    });
+
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+</script>

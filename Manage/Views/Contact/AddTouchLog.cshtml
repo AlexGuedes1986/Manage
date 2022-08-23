@@ -1,0 +1,36 @@
+﻿@model TouchLog
+    <div id="pageHeading">
+        <h2 class="headingAndButton"> <i class="fa fa-address-book"></i> CONTACTS</h2>
+    </div>
+    <div class="col-12">
+        <div>
+            <h4>Add new touch log entry</h4>
+        </div>
+        <p>Add a new touch log entry for <span class="bold">@ViewBag.ContactName</span></p>
+        <form asp-action="AddTouchLog" method="post">
+            <input type="hidden" name="ContactId" value="@Model.ContactId" />
+            <input type="hidden" name="UserId" value="@Model.UserId" />
+            <div class="form-group">
+                <label>Type: </label>
+                <select name="Type" class="form-control col-md-2">
+                    <option value="">Please select an option</option>
+                    <option>Email</option>
+                    <option>Phone</option>
+                    <option>Text</option>
+                    <option>Meeting</option>
+                    <option>Party Attendee</option>
+                    <option>Event</option>
+                </select>
+                <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+            <div>
+                <label>Description:</label>
+                <div>
+                    <textarea class="textAreaSize form-control col-md-5" name="Log"></textarea>
+                </div>
+                <span asp-validation-for="Log" class="text-danger"></span>
+            </div>
+            <input type="submit" value="Save" class="btn btn-primary btnMargin" />
+        </form>
+    </div>
+

@@ -1,0 +1,144 @@
+﻿@model InvoiceProject
+
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-money-bill"></i> Invoices</h2>
+</div>
+
+<div style="padding-bottom:50px;padding-top:10px;">
+    <a href="@Url.Action("TimesheetEntriesByProject", new { id = Model.Id})" class="btn btn-primary inlineBlock ml-3 floatRight">View Invoice</a>
+    <a href="@Url.Action("Index")" class="btn btn-primary inlineBlock ml-3 floatRight">Billing</a>
+</div>
+
+<h2>Edit Invoice</h2>
+<h3>Project Name: @Model.ProjectTitle</h3>
+
+<table class="table-striped table-hover table-bordered tableTimesheet">
+    <tr class="bold">
+        <td>Date</td>
+        <td>Item #</td>
+        <td>Task Name</td>
+        <td>Contract</td>
+        <td>Rate</td>
+        <td>Prev</td>
+        <td>Qty</td>
+        <td>Total %</td>
+        <td>Amount</td>
+    </tr>
+    @{
+        // Display string representations of numbers for en-us culture
+        CultureInfo ci = new CultureInfo("en-us");
+        foreach (var timesheetEntry in Model.InvoiceTimesheetEntries)
+        {
+        <tr>
+            <td>@timesheetEntry.DateModified.ToString("MM/dd/yyyy")</td>
+            <td>@timesheetEntry.TaskNumber</td>
+            <td>@timesheetEntry.TaskName</td>
+            <td>@($"{timesheetEntry.Contract.ToString("C", ci)}")</td>
+            <td>
+                @{
+                    if (String.Equals(timesheetEntry.FeeStructure, "flat fee", StringComparison.OrdinalIgnoreCase))
+                    {
+                        @timesheetEntry.RateUsed.ToString("F2");
+                    }
+                    else
+                    {
+                        <input type="number" min="0" value="@timesheetEntry.RateUsed.ToString("F2")" class="inpTimesheetRate" />
+                        <input type="hidden" class="hdnTimesheetEntryId" value="@timesheetEntry.Id" />
+                    }
+                }
+            </td>           
+            <td>@($"{timesheetEntry.Prev.ToString("C", ci)}")</td>
+            <td>
+                @{
+                    if (String.Equals(timesheetEntry.FeeStructure, "flat fee", StringComparison.OrdinalIgnoreCase))
+                    {
+                        @timesheetEntry.Qty
+                    }
+                    else
+                    {
+                        <input type="number" min="0" value="@timesheetEntry.Qty" class="inpTimesheetQty" />
+                        <input type="hidden" class="hdnTimesheetEntryId" value="@timesheetEntry.Id" />
+                    }
+                }
+            </td>
+            <td>@($"{timesheetEntry.TotalPercentage.ToString("C")}%")</td>
+            <td>@($"{timesheetEntry.Amount.ToString("C", ci)}")</td>
+        </tr>
+        }
+    }
+</table>
+
+<div class="marginTop10">
+    <label class="divNoteLabel">
+        Note
+        <textarea class="divNoteLabel" name="Note" onkeyup="textAreaAdjust(this)" id="txtAreaNote" style="overflow:hidden; width:400px;margin-left:10px;">@Model.Note </textarea>
+    </label>
+</div>
+<input type="hidden" id="invoiceId" name="id" value="@Model.Id" />
+<input type="submit" value="Update Invoice" class="btn btn-primary" id="btnUpdateInvoice" />
+
+<div class="marginTop20">
+    <form method="post" action="@Url.Action("EditInvoice")">
+        @{
+            if (!String.Equals(Model.Status, "Paid in Full", StringComparison.OrdinalIgnoreCase))
+            {
+                if (Model.PartialPayments.Count > 0)
+                {
+                    <div class="divPartialPayments col-md-4">
+                        <h4>Partial Payments</h4>
+
+                        @{
+                            foreach (var partialPayment in Model.PartialPayments)
+                            {
+                                <div class="ppaymentInvoice">
+                                    <div>
+                                        <span>Payment Date: @partialPayment.PaymentDate</span>
+                                    </div>
+                                    <div>
+                                        <span>Amount: </span>
+                                        <span>@($"{partialPayment.Amount.ToString("C", ci)}")</span>
+                                    </div>
+                                    <input type="button" class="btnRemovePartialPayment btn btn-danger" value="Remove" data-partial-payment-id="@partialPayment.Id"
+                                           data-url="@Url.Action("RemovePartialPayment")" />
+                                </div>
+                            }
+                        }
+
+                    </div>
+                }
+            }
+        }
+
+        <div>
+            <label>Payment(partial/full)</label>
+            <input type="number" id="partialPaymentAmount" min="0" />
+            <p class="pErrorPayment textRed"></p>
+            <input type="button" id="btnPartialPayment" value="Submit" data-url="@Url.Action("PostPayment")" class="btn btn-primary" />
+        </div>
+
+    </form>
+</div>
+
+<div class="row">
+    <div class="offset-8">
+        <div><span class="bold">Current Charges: </span> <span> @($"{Model.CurrentCharges.ToString("C", ci)}")</span></div>
+        <div><span class="bold">Payment/Credits: </span> <span>@($"{Model.PartialPayments.Sum(pp => pp.Amount).ToString("C", ci)}") </span></div>
+        <div><span class="bold">Invoice Total: </span> <span>@($"{Model.TotalInvoiced.ToString("C", ci)}")</span></div>
+    </div>
+</div>
+
+<input type="hidden" id="invoiceUpdated" value="@ViewBag.InvoiceUpdated" />
+<input type="hidden" id="hdnEditInvoice" value="@Url.Action("EditInvoice")" />
+<script>
+    $(function () {
+        var invoiceUpdated = $('#invoiceUpdated').val();
+        if (invoiceUpdated.length > 0) {
+            $.notify(invoiceUpdated, 'success');
+        }
+
+        $('#txtAreaNote').height($("#txtAreaNote")[0].scrollHeight);
+    })
+</script>
+
+
+

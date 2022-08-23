@@ -1,0 +1,200 @@
+﻿@using  BioTech.ViewModels
+@model ContactViewModel
+@{
+    var caption = Model.Id > 0 ? "Edit Contact" : "Add New Contact";
+}
+
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-address-book"></i> CONTACTS</h2>
+</div>
+<div>
+    <a href="@Url.Action("Index")" class="btn btn-primary floatRight">Go to Contacts</a>
+    <h4 style="margin-left:25px;">@caption</h4>
+</div>
+<div class="row">
+    <div class="col-md-10">
+        <div class="pad">
+
+            @using (Html.BeginForm("ContactAddEdit", "Admin", FormMethod.Post, new { id = "contactEditForm", role = "form" }))
+            {
+
+                @Html.HiddenFor(m => m.Id)
+                <div class="form-group divCompany">
+                    <label for="inpCompanyId">Company</label>
+                    @{
+                        if (Model.Id > 0)
+                        {
+                            <input type="text" class="form-control" id="inpCompanyId" placeholder="Please type a Company Name"
+                                   data-url-autocomplete-company="@Url.Action("AutoCompleteCompany")" autocomplete="new-password" value="@Model.Company.Name" />
+                            <div class="divCompanyData pt-4 pb-2">
+                                <p class="pnomargin"><span class="bold">Company Name: </span> @Model.Company.Name </p><p class="pnomargin">
+                                    <span class="bold">
+                                        Address:
+                                    </span> @($"{Model.Company.AddressLine1}, {Model.Company.City}, {Model.Company.State}, {Model.Company.ZipCode}")
+                                </p><input type="hidden" name="CompanyId" value="@Model.Company.Id" />
+                                <button type="button" id="btnResetCompany" class="btn btn-primary btnReset">Reset Company</button>
+                            </div>
+
+                        }
+                        else
+                        {
+                            <input type="text" class="form-control" id="inpCompanyId" placeholder="Please type a Company Name"
+                                   data-url-autocomplete-company="@Url.Action("AutoCompleteCompany")" autocomplete="new-password" value="@Model.Company?.Name" />
+                            <div class="divCompanyData"></div>
+                            <input type="hidden" name="CompanyId" id="contactCompanyId" value="@Model.Company?.Id" />
+                        }
+                    }
+                    <button type="button" class="btn btn-primary btnModalCompany">
+                        Add company
+                    </button>
+                </div>
+
+
+                <!-- The Modal -->
+                <div class="modal" id="modalCompany" data-url="@Url.Action("CompanyAddEdit","Admin")">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                                <h4 class="modal-title">Add Company</h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="modal-body">
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                <div class="form-group divContact">
+                    @Html.LabelFor(m => m.ContactType)
+                    @Html.DropDownListFor(m => m.ContactType, Model.AvailableContactTypes, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.ContactType, "", new { @class = "text-danger field-validation-error" })
+                </div>
+                <div class="row rowContact">
+                    <div class="col">
+                        <label asp-for="FirstName" class="control-label"></label>
+                        <input asp-for="FirstName" class="form-control" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="col">
+                        <label asp-for="LastName" class="control-label"></label>
+                        <input asp-for="LastName" class="form-control" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row rowContact">
+                    <div class="col">
+                        <label asp-for="Suffix" class="control-label"></label>
+                        <input asp-for="Suffix" class="form-control" />
+                        <span asp-validation-for="Suffix" class="text-danger"></span>
+                    </div>
+                    <div class="col">
+                        <label asp-for="JobTitle" class="control-label"></label>
+                        <input asp-for="JobTitle" class="form-control" />
+                        <span asp-validation-for="JobTitle" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row rowContact">
+                    <div class="col">
+                        <label asp-for="MobilePhone" class="control-label"></label>
+                        <input asp-for="MobilePhone" class="form-control" />
+                        <span asp-validation-for="MobilePhone" class="text-danger"></span>
+                    </div>
+                    <div class="col">
+                        <label asp-for="EmailAddress" class="control-label"></label>
+                        <input asp-for="EmailAddress" class="form-control" />
+                        <span asp-validation-for="EmailAddress" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row rowContact">
+                    <div class="col-md-6">
+                        <label asp-for="BusinessPhone" class="control-label"></label>
+                        <input asp-for="BusinessPhone" class="form-control" />
+                        <span asp-validation-for="BusinessPhone" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row rowContact">
+                    <label for="Active" class="control-label check-label">
+                        <span class="label-text">Is Active</span>
+                        @Html.CheckBoxFor(m => m.Active)
+                        <span class="checkmark"></span>
+                        <span asp-validation-for="Active" class="text-danger"></span>
+                    </label>
+                </div>
+
+
+                <p>
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger field-validation-error" })
+                </p>
+                <input type="submit" class="btn btn-primary" value="Save" />
+                <a href="/Contact" class="btn btn-default">Cancel</a>
+
+            }
+
+        </div>
+    </div>
+</div>
+
+@if (Model.Id > 0)
+{
+
+    <div class="pad">
+        @(Html.Kendo().Grid<TouchLog>
+        ()
+        .Name("touchlogTable")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.Date).Title("Date").Width(120).ClientTemplate(@"#= kendo.toString(Date,'MM/dd/yyyy') #");
+            columns.Bound(c => c.Employee).Title("Employee").Width(120);
+            columns.Bound(c => c.Log).Title("Log").Width(120);
+            columns.Bound(c => c.Type).Title("Type").Width(100);
+        })
+        .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+        .Sortable()
+        .Scrollable(s => s.Height(485))
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(10)
+        .Events(events => events.Error("error_handler"))
+        .Model(model => model.Id(p => p.Id))
+        .Read(read => read.Action("TouchLogs_Read", "Contact", new { contactId = Model.Id }))
+        )
+        )
+        <a href="@Url.Action("AddTouchLog", "Contact", new { contactId = Model.Id })" class="btn btn-primary btnMargin"> Add Touchlog</a>
+    </div>
+
+    <input type="hidden" id="inpAddEditCompanyUrl" data-url="@Url.Action("CompanyAddEdit","Admin")" />
+
+    <script>
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                alert(message);
+            }
+        }
+
+        var grid = $("#touchLogTable").data("kendoGrid");
+        var companyGrid = $("#touchLogTable").data("kendoGrid");
+    </script>
+}
+

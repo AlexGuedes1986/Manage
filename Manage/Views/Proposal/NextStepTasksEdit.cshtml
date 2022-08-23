@@ -1,0 +1,6 @@
+﻿@model int
+
+    <div>
+        <a href="@Url.Action("EditRemoveTasksFromProposal", new { proposalId = Model })">Edit Remove / Tasks</a>       
+        <a href="@Url.Action("TasksByCategory", new { proposalId = Model })">Add Task to Proposal</a>
+    </div>

@@ -1,0 +1,274 @@
+﻿@model ManageTaskViewModel
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+
+<div class="col-12">
+
+    <div id="pageHeading">
+        <h2 class="headingAndButton"><i class="fa fa-folder-open"></i> PROJECTS</h2>
+        @{
+            if (!String.IsNullOrEmpty(Model.ProjectNumber))
+            {
+                <a class="btn btn-primary" href="@Url.Action("ProjectDetails", new { id = Model.ProjectDefaultId })">Previous Page</a>
+            }
+        }
+    </div>
+
+    <form method="post" action="@Url.Action("AssignTaskToUser")" id="frmAssignTaskToUser">
+        <div class="row">
+            <div class="col-md-2">
+                <label>Project:</label>
+            </div>
+            <div class="col-md-8">
+                <select class="selectProject form-control marginHorizontal marginBottom15" id="select-project" placeholder="Pick a project...">
+                    <option class="optProject" value="">Select a Project</option>
+                    @{
+                        foreach (var project in Model.Projects)
+                        {
+                            if (project.Id == Model.ProjectDefaultId)
+                            {
+                                <option class="optProject" value="@project.Id" selected="selected">@project.ProjectName</option>
+                            }
+                            else
+                            {
+                                <option class="optProject" value="@project.Id">@project.ProjectName</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <label>Task:</label>
+            </div>
+            <div class="col-md-8">
+                <select name="TaskExtensionId" class="selectTask form-control marginHorizontal marginBottom15">
+                    <option value="">Select a Task</option>
+                    @{
+                        foreach (var project in Model.Projects)
+                        {
+                            if (project.Id == Model.ProjectDefaultId)
+                            {
+                                foreach (var task in project.TaskExtension)
+                                {
+                                    if (task.Id == Model.TaskDefaultId)
+                                    {
+                                        <option value="@task.Id" selected="selected">@($"{task.TaskTitle} ({task.TaskCodeParent}-{task.TaskCodeSub})")</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@task.Id">@($"{task.TaskTitle} ({task.TaskCodeParent}-{task.TaskCodeSub})")</option>
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+    
+        @{
+            if (Model.DisplayInTimesheet)
+            {
+                    <div class="row">
+            <label class="cursorPointer">
+                        <input type="checkbox" id="chbDisplayInTimesheets" class="marginReqComment" name="DisplayInTimesheet" value="true" checked="checked"/>
+                        Display in Timesheets
+                    </label>
+        </div>
+            }
+            else
+            {
+                          <div class="row">
+            <label class="cursorPointer">
+                        <input type="checkbox" id="chbDisplayInTimesheets" class="marginReqComment" name="DisplayInTimesheet" value="true"/>
+                        Display in Timesheets
+                    </label>
+        </div>
+            }    
+
+            if (Model.UsersAssignedToTask.Count == 0)
+            {
+                <div class="row">
+                    <label class="cursorPointer">
+                        <input type="checkbox" id="chbAssignToMyself" class="marginReqComment" name="AssignToMyself" value="true"
+                               checked="checked" />Assign to myself
+                    </label>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    <label class="cursorPointer">
+                        <input type="checkbox" id="chbAssignToMyself" class="marginReqComment" name="AssignToMyself"
+                               value="true" />Assign to myself
+                    </label>
+                </div>
+            }
+        }
+
+    <div class="row divAssignTo">
+        <div class="col-md-2">
+            <label>Assign to :</label>
+        </div>
+        <div class="col-md-6">
+            <input type="text" class="form-control marginHorizontal marginBottom15" id="inpUserTaskAssign" data-url-autocomplete-user="@Url.Action("AutoCompleteTaskUserAssigned")"
+                   placeholder="Please type Team Member Name" autocomplete="not" />
+            <button type="button" id="btnClearInputUserAssigned" class="btn btn-primary displayNone">Clear User Assignment Input</button>
+            <span id="spanUserTaskValidation" class="text-danger"></span>
+        </div>
+        @{
+            if (Model.UsersAssignedToTask.Count() > 0)
+            {
+                <div class="divUserTaskAssignment">
+                    @{
+                        for (int i = 0; i < Model.UsersAssignedToTask.Count(); i++)
+                        {
+                            <p class="pMargin">
+                                @($"{Model.UsersAssignedToTask[i].FormattedName}")<i class="fa fa-times faTimesMargin removeUserAssigned"></i>
+                                <input type="hidden" name="TaskUsersAssigned[@i].ApplicationUserId" class="userAssignedItem" value="@Model.UsersAssignedToTask[i].ApplicationUserId" />
+                                <input type="hidden" name="TaskUsersAssigned[@i].FormattedName" class="userAssignedFormattedName" value="@Model.UsersAssignedToTask[i].FormattedName" />
+                            </p>
+                        }                       
+                    }
+                </div>
+
+            }
+            else
+            {
+                <div class="divUserTaskAssignment displayNone">
+                </div>
+            }
+        }
+      
+    </div>
+        <div class="row">
+            <div class="col-md-2">
+                <label>Status:</label>
+            </div>
+            <div class="col-md-2">
+                <select name="Status" id="selectStatus" class="form-control marginHorizontal marginBottom15">
+                    <option value="">Select Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Complete">Complete</option>
+                    <option value="Hold">Hold</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="Pending">Pending</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <label>Effective Date:</label>
+            </div>
+            <div class="col-md-2">
+                @{
+                    if (Model.EffectiveDate != null)
+                    {
+                        <input type="text" name="EffectiveDate" id="inpEffectiveDate" class="form-control marginHorizontal marginBottom15"
+                               value="@Model.EffectiveDate.Value.ToString("MM/dd/yyyy")" />
+                    }
+                    else
+                    {
+                        <input type="text" name="EffectiveDate" id="inpEffectiveDate" class="form-control marginHorizontal marginBottom15"
+                               value="@DateTime.Now.ToString("MM/dd/yyyy")" />
+                    }
+                }
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <label>Due Date:</label>
+            </div>
+            <div class="col-md-2">
+                @{
+                    if (Model.DueDate != null)
+                    {
+                        <input type="text" name="DueDate" id="inpDueDate" class="form-control marginHorizontal marginBottom15"
+                               value="@Model.DueDate.Value.ToString("MM/dd/yyyy")" />
+                    }
+                    else
+                    {
+                        <input type="text" name="DueDate" id="inpDueDate" class="form-control marginHorizontal marginBottom15"
+                               value="@DateTime.Now.AddDays(30).ToString("MM/dd/yyyy")" />
+                    }
+                }
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <label>Note:</label>
+            </div>
+            <div class="col-md-8">
+                <textarea class="form-control marginHorizontal textAreaSize" name="Note">@Model.Note</textarea>
+            </div>
+        </div>
+        @{
+            if (Model.RequireComment)
+            {
+                <div class="row">
+                    <label class="cursorPointer">
+                        <input type="checkbox" class="marginReqComment" name="RequireComment" value="true"
+                               checked="checked" />Require comment on timesheet?
+                    </label>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    <label class="cursorPointer">
+                        <input type="checkbox" class="marginReqComment" name="RequireComment" value="true" />
+                        Require comment on timesheet?
+                    </label>
+                </div>
+            }
+        }
+
+        <p class="pErrorMessageAssignTask textRed whiteSpacePreLine"></p>
+        <div class="row">
+            <input type="button" value="Submit" id="btnAssignTask" class="btn btn-primary marginReqComment"
+                   data-url-assign-task="@Url.Action("AssignTaskToUser")" />
+        </div>
+        <input type="hidden" id="hdnManageTask" data-url-manage-task="@Url.Action("ManageTask")" />
+        <input type="hidden" id="hdnProposalId" value="@Model.ProjectDefaultId" data-url-get-project-tasks="@Url.Action("GetProjectTasks"
+    , new { proposalId = Model.ProjectDefaultId })" name="ProposalId" />
+        <input type="hidden" id="hdnTaskAssigned" data-hdn-task-assigned="@ViewBag.TaskAssigned" />
+        <input type="hidden" name="Id" value="@Model.Id" />
+    </form>
+    <input type="hidden" id="hdnStatus" value="@Model.Status" />
+    <input type="hidden" id="hdnTypeOfView" value="@Model.TypeOfView" />
+</div>
+
+<script>
+    const pickerDueDate = datepicker('#inpDueDate', {
+        formatter: (input, date, instance) => {
+            const value = date.toLocaleDateString()
+            input.value = value
+        }
+    });
+    const pickerEffectiveDate = datepicker('#inpEffectiveDate', {
+        formatter: (input, date, instance) => {
+            const value = date.toLocaleDateString()
+            input.value = value
+        }
+    });
+
+    let taskAddedMessage = $('#hdnTaskAssigned').data('hdn-task-assigned');
+    if (taskAddedMessage.length > 0) {
+        $.notify(taskAddedMessage, 'success');
+    }
+
+    $(document).ready(function () {
+        $('#select-project').selectize({
+            sortField: 'text'
+        });
+    });
+</script>

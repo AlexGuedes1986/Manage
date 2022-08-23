@@ -1,0 +1,21 @@
+﻿<form action="@Url.Action("CustomerOpenBalanceData")" method="post">
+    <div class="row">
+        <div class="offset-1">
+            @await Component.InvokeAsync("ReportFilter")
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="offset-1">
+            <input type="submit" value="Generate Report" id="btnOpenBalanceReport" class="btn btn-success marginTop10" />
+            @{
+                string noInvoices = TempData["CustomerOpenBalanceEmpty"]?.ToString();
+                if (!String.IsNullOrEmpty(noInvoices))
+                {
+                    <p class="textRed">@noInvoices</p>
+                }
+            }
+        </div>
+    </div> 
+</form>

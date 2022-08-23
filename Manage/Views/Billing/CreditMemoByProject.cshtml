@@ -1,0 +1,26 @@
+﻿<form action="@Url.Action("CreditMemoByProjectData")" method="post">
+    <div class="row">
+        <div class="col-md-1 offset-1">
+        </div>
+        <div class="col-md-2 marginbottom10">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-1 offset-1">
+            <label class="bold">Project Number/Title</label>
+        </div>
+        <div class="col-md-2 marginbottom10">
+            <input type="text" id="inpCreditMemoReport" class="form-control" autocomplete="off" placeholder="Please type Project Number or Title"
+                   data-url-autocomplete="@Url.Action("AutocompleteProjectNumberTitle")" />
+            <input type="hidden" name="projectNumber" id="hdnCreditMemo"/>
+            <input type="submit" value="Generate Report" id="btnCreditMemoReport" class="btn btn-success marginTop10" />
+            @{
+                string noCreditMemos = TempData["CreditMemoEmpty"]?.ToString();
+                if (!String.IsNullOrEmpty(noCreditMemos))
+                {
+                    <p class="textRed">@noCreditMemos</p>
+                }
+            }
+        </div>
+    </div>
+</form>

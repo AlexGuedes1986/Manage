@@ -1,0 +1,47 @@
+﻿@*@model InvoiceProject*@
+<h2 class="paddingTop5">New Billing Invoice Batch</h2>
+
+<form action="@Url.Action("CreateTimesheetReport")" method="post">
+    <div class="textRed">
+        @Html.ValidationSummary()
+    </div>
+
+    <div class="row">
+        <div class="col-md-2">
+            <label>From Date</label>
+        </div>
+        <div class="col-md-2 marginbottom10">
+            <input type="text" name="fromDate" id="inpFromDate" class="form-control" autocomplete="off" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-2">
+            <label>To Date</label>
+        </div>
+        <div class="col-md-2 marginbottom10">
+            <input type="text" name="toDate" id="inpToDate" class="form-control" autocomplete="off" />
+        </div>
+    </div>
+
+    <input type="submit" class="btn btn-primary" value="Create Timesheets Report" />
+</form>
+<script>
+    $(function () {
+     const pickerFromDate = datepicker('#inpFromDate', {
+        formatter: (input, date, instance) => {
+            const value = date.toLocaleDateString();
+            input.value = value;
+        }
+    });
+
+    const pickerToDate = datepicker('#inpToDate', {
+        formatter: (input, date, instance) => {
+            const value = date.toLocaleDateString();
+            input.value = value;
+        }
+
+    });
+      
+    })
+</script>

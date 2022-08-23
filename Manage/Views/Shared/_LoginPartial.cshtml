@@ -1,0 +1,32 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    ApplicationUser appUser = UserManager.FindByNameAsync(User.Identity.Name).Result;
+    var userName = $"{appUser?.FirstName } {appUser?.LastName}";
+    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+          method="post" id="logoutForm" class="navbar-right">
+        <ul class="nav navbar-nav white-text ulTopMenu">
+            <li class="linkTopRight">
+                <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @userName</a>
+            </li>
+            <li class="linkTopRight">
+                <button type="submit" class="btn btn-primary white-text">Logout</button>
+            </li>
+            @if (User.IsInRole("Admin") || User.IsInRole("Project Manager"))
+            {
+                <li class="linkTopRight">
+                    <a href="/Admin">Admin</a>
+                </li>
+            }
+        </ul>
+    </form>
+}
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li><a asp-area="Identity" asp-page="/Account/Login">Login</a></li>
+    </ul>
+}

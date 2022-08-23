@@ -1,0 +1,179 @@
+﻿@{
+    ViewData["Title"] = "Executive Dashboard";
+}
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-tachometer-alt"></i> EXECUTIVE DASHBOARD</h2>
+</div>
+
+@Html.AntiForgeryToken()
+
+@await Component.InvokeAsync("HoursThisWeek")
+
+<div class="row rowNoMarginSide" style="width:100%;">
+    <div class="col-md-12">
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title d-flex align-items-center justify-content-center h-100">PROJECT MANAGEMENT</h3>
+            </div>
+            <div class="pad">
+                @(Html.Kendo().Grid<ExecutiveDashboardKendoVM>()
+                            .Name("executiveDashboardTable")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(c => c.ProjectNumber).Title("Project #").ClientTemplate("<a href='" + "Project/ProjectDetails?id=#= Id #'" + ">#= ProjectNumber #</a>").Width(80);
+                                columns.Bound(c => c.ClientCompanyName).Title("Client").Width(120);
+                                columns.Bound(c => c.ProjectName).Title("Project Name").Width(120);
+                                columns.Bound(c => c.ContractNumber).Title("Contract #").Width(80);
+                                columns.Bound(c => c.Author).Title("Project Manager").Width(150);
+                            })
+                            .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+                            .Pageable(p => p.PageSizes(new int[4] { 10, 20, 50, 100 }))
+                            .Sortable()
+                            .Scrollable(s => s.Height(485))
+                            .Resizable(r => r.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(50)
+                                .Events(events => events.Error("error_handler"))
+                                .Read(read => read.Action("DashboardExecutive_Read", "Home"))
+                            )
+                )
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="row rowNoMarginSide" style="width:100%;">
+    <div class="col-md-12">
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title d-flex align-items-center justify-content-center h-100">ACTIVE TASKS</h3>
+            </div>
+            <div class="pad">
+                @(Html.Kendo().Grid<DashboardRegularVM>()
+                            .Name("dashboardTable")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(c => c.ProjectNumber).Title("Project #").ClientTemplate("<a href='" + "Project/ProjectDetails?id=#= Id #'" + ">#= ProjectNumber #</a>").Width(80);
+                                columns.Bound(c => c.ClientName).Title("Client").Width(120);
+                                columns.Bound(c => c.ProjectName).Title("Project Name").Width(120);
+                                columns.Bound(c => c.ContractNumber).Title("Contract #").Width(80);
+                                columns.Bound(c => c.TaskNumber).Title("Task").Width(60);
+                                columns.Bound(c => c.TaskName).Title("Task Description").Width(120);
+                                columns.Bound(c => c.DueDate).Title("Due Date").Width(80).Format("{0:ddd MM/dd/yyyy}");
+                                columns.Bound(c => c.Status).Title("Status").Width(80);
+                            })
+                            .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+                            .Pageable(p => p.PageSizes(new int[4] { 10, 20, 50, 100 }))
+                            .Sortable()
+                            .Scrollable(s => s.Height(485))
+                            .Resizable(r => r.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(50)
+                                .Events(events => events.Error("error_handler"))
+                                .Read(read => read.Action("DashboardRegular_Read", "Home"))
+                            )
+                )
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="row rowNoMarginSide" style="width:100%;">
+    <div class="col-md-12">
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title d-flex align-items-center justify-content-center h-100">PROPOSAL STATUS</h3>
+            </div>
+            <div class="pad">
+                @(Html.Kendo().Grid<ContractStatusVM>()
+                            .Name("contractStatusDashboardTable")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(c => c.ProposalName).Title("Proposal Name").ClientTemplate("<a href='" + "/Proposal/EditProposal/${Id}'" + ">#= ProposalName #</a>").Width(120);
+                                columns.Bound(c => c.ClientCompanyName).Title("Client").Width(120);
+                                columns.Bound(c => c.DateCreated).Title("Created").Width(120).Format("{0:ddd MM/dd/yyyy}");
+                                columns.Bound(c => c.Author).Title("Project Manager").Width(150);
+                            })
+                            .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+                            .Pageable(p => p.PageSizes(new int[4] { 10, 20, 50, 100 }))
+                            .Sortable()
+                            .Scrollable(s => s.Height(485))
+                            .Resizable(r => r.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(50)
+                                .Events(events => events.Error("error_handler"))
+                                .Read(read => read.Action("DashboardContractStatus_Read", "Home"))
+                            )
+                )
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="row rowNoMarginSide" style="width:100%;">
+    <div class="col-md-12">
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title d-flex align-items-center justify-content-center h-100">TOUCH LOGS</h3>
+            </div>
+            <div class="pad">
+                @(Html.Kendo().Grid<TouchLogKendoVM>()
+                            .Name("touchLogTable")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(c => c.Employee).Title("Employee").Width(80);
+                                columns.Bound(c => c.Log).Title("Description").Width(120);
+                                columns.Bound(c => c.Type).Title("Type").Width(80).ClientTemplate(@"<i #if(Type == 'Email'){ #class='fa fa-envelope' title='Email'#}
+                                if(Type=='Phone'){ #class='fa fa-phone-alt' title='Phone'#}if(Type=='Text'){ #class='fa fa-pencil-alt' title='Text'#}
+                                if(Type=='Meeting'){ #class='fa fa-handshake' title='Meeting'#}if(Type=='Party Attendee'){ #class='fa fa-wine-glass-alt' title='Party Attendee'#}
+                                if(Type=='Event'){ #class='fa fa-users' title='Event'#}#</i>");
+                                columns.Bound(c => c.ContactName).Title("Contact Name").ClientTemplate("<a href='" + "/Contact/ContactDetails/${ContactId}'" + ">#= ContactName #</a>").Width(120);
+                                columns.Bound(c => c.ContactCompanyName).Title("Company Name").Width(80);
+                                columns.Bound(c => c.Date).Title("Date").Width(60).Format("{0:ddd MM/dd/yyyy}");
+                            })
+                            .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+                            .Pageable(p => p.PageSizes(new int[4] { 10, 20, 50, 100 }))
+                            .Sortable()
+                            .Scrollable(s => s.Height(485))
+                            .Resizable(r => r.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(50)
+                                .Events(events => events.Error("error_handler"))
+                                .Read(read => read.Action("DashBoardTouchLog_Read", "Home"))
+                            )
+                )
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var grid = $("#executiveDashboardTable").data("kendoGrid");
+    });
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+</script>

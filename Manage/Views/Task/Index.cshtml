@@ -1,0 +1,76 @@
+﻿@model bool
+@{
+    ViewData["Title"] = "Tasks";
+}
+
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-tasks"></i> TASKS</h2>
+</div>
+
+@Html.AntiForgeryToken()
+
+<div class="row rowNoMarginSide" style="width:100%;">
+    <div class="col-md-12">
+        <div class="box">
+            <div class="pad">
+                @(Html.Kendo().Grid<TaskBioTechVM>()
+                            .Name("taskTable")
+                            .Columns(columns =>
+                            {                               
+                                columns.Bound(c => c.Id).Title("&nbsp;")
+                              .ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Task/EditTask/${id}'><span class='k-icon k-i-edit'></span>Edit</a>")
+                              .Width(80).Filterable(false);
+
+                                columns.Bound(c => c.FormattedTaskNumber).Title("Task Code").Width(120);
+                                columns.Bound(c => c.TaskTitle).Title("Title").Width(120);
+                                columns.Bound(c => c.TaskDescription).Title("Description").Width(120);                             
+                                columns.Command(command => { command.Destroy(); }).Width(80);                               
+                            })
+                            .ToolBar(toolbar =>
+                            {                               
+                                toolbar.ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Task/Create' ><span class='k-icon k-i-plus'></span>Add Task</a>");                               
+                            }
+                            )
+                            .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+                            .Pageable(p => p.PageSizes(new int[5] { 20, 100, 250, 500, 1000}))
+                            .Sortable()
+                            .Scrollable(s => s.Height(485))
+                            .Resizable(r => r.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(20)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model => model.Id(p => p.Id))
+                                .Create(update => update.Action("Create", "Task"))
+                                .Read(read => read.Action("Tasks_Read", "Task"))
+                                .Update(update => update.Action("Task_Update", "Task"))
+                                .Destroy(update => update.Action("Task_Destroy", "Task")) 
+                            )
+                )
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var grid = $("#taskTable").data("kendoGrid");
+    });
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+</script>

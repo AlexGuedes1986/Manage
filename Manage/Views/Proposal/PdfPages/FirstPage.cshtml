@@ -1,0 +1,140 @@
+﻿@using Microsoft.AspNetCore.Mvc
+@model ProposalViewModel
+@{
+    Layout = null;
+    var formattedDate = Model.PdfDateCreated.HasValue ? Model.PdfDateCreated.Value.ToString("MMMM dd, yyyy") : "Date Not Available";
+    var logoUrl = new Uri($"{Context.Request.Scheme}://{Context.Request.Host}/images/BioTech-logo-2021-rgb-01.jpg").AbsoluteUri;
+}
+
+<div style="background-color:#00a651; height:1311px; width:200px; display:inline-block;border-right: 10px solid #6d5a54;
+color:white; font-weight:bold;margin: 0 0 0 -10px;font-family:Cambria;font-size:8pt; line-height:9pt;">
+    <div style="margin:760px 0 0 20px;">
+        <div>
+            <span>Orlando: Main Office</span>
+            <br />
+            <span>3025 East South Street</span>
+            <br />
+            <span>Orlando, FL 32803</span>
+        </div>
+        <div style="margin-top:20px;">
+            <span>Jacksonville Office</span>
+            <br />
+            <span>11235 St Johns Industrial Pkwy N</span>
+            <br />
+            <span>Suite 2</span>
+            <br />
+            <span>Jacksonville, FL 32246</span>
+        </div>
+        <div style="margin-top:20px;">
+            <span>Tampa Office</span>
+            <br />
+            <span>6011 Benjamin Road</span>
+            <br />
+            <span>Suite 101B</span>
+            <br />
+            <span>Tampa, FL 33634</span>
+        </div>
+        <div style="margin-top:20px;">
+            <span>Vero Beach Office</span>
+            <br />
+            <span>4445 N A1A</span>
+            <br />
+            <span>Suite 221</span>
+            <br />
+            <span>Vero Beach, FL 32963</span>
+        </div>
+        <div style="margin-top:20px;">
+            <span>Key West Office</span>
+            <br />
+            <span>1107 Key Plaza</span>
+            <br />
+            <span>Suite 259</span>
+            <br />
+            <span>Key West, FL 33040</span>
+        </div>
+        <div style="margin-top:20px;">
+            <span>Land & Aquatic</span>
+            <br />
+            <span>Management Operations</span>
+            <br />
+            <span>3825 Rouse Road</span>
+            <br />
+            <span>Orlando, FL 32817</span>
+        </div>
+        <div style="margin-top:20px;">
+            <span>407.894.5969</span>
+            <br />
+            <span>877.894.5969</span>
+            <br />
+            <span>407.894.5970 fax</span>
+        </div>
+    </div>
+</div>
+<div style="display: inline-block; vertical-align: top;margin-top:5px;"><img style="width:350px;" src="@logoUrl" /></div>
+<div style="margin-left:-300px;margin-right:-300px; vertical-align:top; display:inline-block;margin-top:180px; width:700px;
+font-family:'Times New Roman';font-size:13.2pt;">
+    <span>@formattedDate</span>
+    <br /><br /><br />
+    <span>@($"{Model.Contact?.FirstName} {Model.Contact?.LastName}")</span><br />
+    <span style="font-weight:bold;">@($"{Model.Contact?.Company?.Name}")</span><br />
+    <span>@($"{Model.Contact?.Company?.AddressLine1}")</span><br />
+    @{
+        if (!String.IsNullOrEmpty(Model.Contact?.Company?.AddressLine2))
+        {
+            <span>@($"{Model.Contact?.Company?.AddressLine2}")</span><br />
+        }
+    }
+
+    @if (!String.IsNullOrEmpty(Model.Contact?.Company?.City) && !String.IsNullOrEmpty(Model.Contact?.Company?.State) && !String.IsNullOrEmpty(Model.Contact?.Company?.ZipCode))
+    {
+        <span>@($"{Model.Contact?.Company?.City}, {Model.Contact?.Company?.State} {Model.Contact?.Company?.ZipCode}")</span><br />
+    }
+
+    <br /><br />
+    <span style="font-weight:bold;">Proj:<span style="margin-left:10px;">@Model.ProjectName</span></span><br />
+    <span style="font-weight:bold;">
+        Re:<span style="margin-left:23px;">Proposal for Environmental Services - (BTC Proposal No. @Model.ContractNumber)</span>
+    </span>
+    <br />
+    <br />
+    <br />
+    <span>Dear @($"{Model.Contact.Suffix} {Model.Contact.FirstName}:")</span>
+    <br />
+    <br />
+    <p style="font-size:13.2pt; text-align:justify;">
+        Bio-Tech Consulting, Inc. (BTC) is pleased to provide this proposal for environmental services associated with @Model.ProjectName in @Model.ProjectCounty County.
+        If you would like BTC to proceed with the scope outlined herein, please
+        sign the signature block, complete the billing information section and
+        initial where provided, then return to my attention.
+    </p>
+    @{
+        if (!String.IsNullOrEmpty(Model.SecondParagraphCoverLetter))
+        {
+            <p style="text-align:justify;">
+                @Model.SecondParagraphCoverLetter
+            </p>
+        }
+    }
+
+    <p style="text-align:justify;">
+        Should you have any
+        questions or require any additional information, please do not hesitate to
+        contact this office at (407) 894-5969 or toll free at (877) 894-5969. Thank you.
+    </p>
+    <br />
+    <br />
+    <br />
+    <div style="margin-left:400px;">
+        <span>Regards,</span>
+        <br />
+        <span>@($"{Model.AuthorFormattedName}")</span>
+        <br />
+        <span>@Model.AuthorBillingRole</span>
+    </div>
+</div>
+<div style="display: inline-block; line-height:12pt; vertical-align: bottom;margin:0 -250px 0 -280px;width:540px;font-size:10pt; color:#6d5a54;
+font-weight:bold;font-family:Cambria;">
+    <span style="padding-left:13px;padding-right:13px;">info@bio-techconsulting.com</span>
+    <span style="padding-left:13px;padding-right:13px;">www.bio-techconsulting.com</span>
+</div>
+

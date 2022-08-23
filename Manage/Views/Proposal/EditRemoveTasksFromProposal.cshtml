@@ -1,0 +1,147 @@
+﻿@model List<TaskExtensionViewModel>
+@{
+    var taskMessage = ViewBag.TaskUpdated;
+}
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-file-alt"></i> PROPOSALS</h2>
+</div>
+
+<div style="padding-bottom:50px;padding-top:10px;">
+    <a href="@Url.Action("Index")" class="btn btn-primary inlineBlock ml-3 floatRight">Go To Proposals</a>
+    <a href="@Url.Action("ViewProposal", new { id = Model.Select(te => te.ProposalId).FirstOrDefault() })" class="btn btn-primary inlineBlock ml-3 floatRight">Go To Pdf Generation Page</a>
+    <a href="@Url.Action("EditProposal", new { id = Model.Select(te => te.ProposalId).FirstOrDefault() })" class="btn btn-primary inlineBlock ml-3 floatRight">Previous Page</a>
+</div>
+
+<div style="margin:0 105px 0 105px;">
+    @{
+        if (Model.Count > 0)
+        {
+            <h4>Edit Tasks</h4>
+        }
+
+        else
+        {
+            <h4>There are no tasks to edit</h4>
+        }
+        @Html.ValidationSummary(false, "", new { @class = "text-danger field-validation-error" })
+    }
+</div>
+
+@{
+    foreach (var taskExtension in Model)
+    {
+        <form action="@Url.Action("EditRemoveTasksFromProposal")" method="post">
+            <div class="divBorderTask parentTaskDiv">
+                <div class="taskContent">
+                    <h5>@taskExtension.FormattedTaskName</h5>
+                    <p>@taskExtension.TaskDescription</p>
+                </div>
+                <div class="row taskContent">
+                    <div class="col-md-2">
+                        <label for="feeStructure">Fee Structure</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control ddlFeeStructure" name="FeeStructure" id="feeStructure">
+                            @{
+                                foreach (var availableFeeStruct in taskExtension.AvailableFeeStructures)
+                                {
+                                    if (String.Equals(taskExtension.FeeStructure, availableFeeStruct.Value, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <option value="@availableFeeStruct.Value" selected>@availableFeeStruct.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@availableFeeStruct.Value">@availableFeeStruct.Text</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row taskContent divEventPrice">
+                    <div class="col-md-2">
+                        <label for="InstancePrice">Event Price</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input value="@taskExtension.InstancePrice" name="InstancePrice" class="form-control inpTask" id="InstancePrice"
+                               min="0" />
+                    </div>
+                </div>
+
+                <div class="row divRecurring taskContent">
+                    <div class="col-md-2">
+                        <label for="NumberOfInstances"># of Instances</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input id="NumberOfInstances" value="@taskExtension.NumberOfInstances" name="NumberOfInstances"
+                               class="form-control inpTask" min="0" />
+                        <select class="form-control ddlIntervalType" name="IntervalType">
+                            @{
+                                if (taskExtension.IntervalType != null)
+                                {
+                                    <option value="@taskExtension.IntervalType">@taskExtension.IntervalType</option>
+                                }
+
+                                foreach (var availableIntervalType in taskExtension.AvailableIntervalTypes)
+                                {
+                                    <option value="@availableIntervalType.Value">@availableIntervalType.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row taskContent divTotalPrice">
+                    <div class="col-md-2">
+                        <label for="TotalPrice" class="control-label">Total Price</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input id="TotalPrice" class="form-control inpTask" type="text" value="@taskExtension.TotalPrice" name="TotalPrice" min="0" />
+                    </div>
+                </div>
+
+                <div class="row taskContent divNotToExceedTotalPrice">
+                    <div class="col-md-2 inlineBlock">
+                        <label asp-for="@taskExtension.NotToExceedTotalPrice"></label>
+                    </div>
+                    <div class="col-md-9 inlineBlock">
+                        <input id="NotToExceedTotalPrice" class="form-control inpTask" type="text" value="@taskExtension.NotToExceedTotalPrice" name="NotToExceedTotalPrice" min="0" />
+                        @Html.ValidationMessageFor(te => taskExtension.NotToExceedTotalPrice)
+                    </div>
+                </div>
+
+                <div class="row taskContent">
+                    <div class="col-md-2">
+                        <label>Note</label>
+                    </div>
+                    <div class="col-md-8">
+                        <textarea name="Note" class="form-control">@taskExtension.Note</textarea>
+                    </div>
+                </div>
+                <div class="btnRight">
+                    <input type="submit" name="submitType" value="Update" class="btn btn-primary" />
+                    <input type="submit" name="submitType" value="Remove" class="btn btn-danger" />
+                </div>
+            </div>
+            <input type="hidden" name="Id" value="@taskExtension.Id" />
+            <input type="hidden" name="Category" value="@taskExtension.Category" />
+            <input type="hidden" name="ProposalId" value="@taskExtension.ProposalId" />
+            <input type="hidden" name="TaskCodeParent" value="@taskExtension.TaskCodeParent" />
+            <input type="hidden" name="TaskCodeSub" value="@taskExtension.TaskCodeSub" />
+            <input type="hidden" name="TaskDescription" value="@taskExtension.TaskDescription" />
+            <input type="hidden" name="TaskTitle" value="@taskExtension.TaskTitle" />
+        </form>
+    }
+
+}
+<input type="hidden" id="hdnTaskMessage" value="@taskMessage" />
+
+<script>
+    $(function () {
+        let taskMessage = $('#hdnTaskMessage').val();
+        if (taskMessage.trim()) {
+            $.notify(taskMessage, 'success');
+        }
+    });
+</script>

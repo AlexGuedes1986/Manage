@@ -1,0 +1,166 @@
+﻿@model TaskByCategoryVM
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-file-alt"></i> PROPOSALS</h2>
+</div>
+<div class="paddingTop5">
+    <a href="@Url.Action("Index")" class="btn btn-outline-primary inlineBlock floatRight">Go To Proposals</a>
+    <a href="@Url.Action("ViewProposal", new { id = Model.ProposalId})" class="btn btn-outline-primary inlineBlock floatRight">Go To Pdf Generation/Activation Page</a>
+    <a href="@Url.Action("EditProposal", new { id = Model.ProposalId})" class="btn btn-outline-primary inlineBlock floatRight">Previous Page</a>
+</div>
+<h3 class="marginLeft225">@Model.ProjectName</h3>
+
+<div class="row marginLeft205">
+    <div class="form-group paddingLeft col-md-5 divUploadImage">
+
+        @{
+            if (String.IsNullOrEmpty(Model.Proposal.ImageUrl))
+            {
+                <div>
+                    <label class="lblHeader" for="pdfImage">Upload image:</label>
+                </div>
+                
+                    <input type="file" id="pdfImage" name="p" accept="image/png, image/jpeg, application/pdf">
+                    <button id="uploadImagePdf">Upload</button>
+                    }
+                    else
+                    {
+                    var imageName = System.IO.Path.GetFileNameWithoutExtension(Model.Proposal.ImageUrl);
+                    <div>
+                        <label class="lblHeader" for="pdfImage">Replace/Remove image "@imageName":</label>
+                    </div>
+                    <input type="file" id="pdfImage" name="p" accept="image/png, image/jpeg, application/pdf">
+                    <button id="uploadImagePdf">Replace</button>
+                    <button id="btnRemoveImage" data-url-remove-image="@Url.Action("RemoveImageFromPdf")">Remove</button>
+                    }
+        }
+
+    </div>
+    <div class="col-md-7"></div>
+    <div class="form-group paddingLeft">
+        <label class="lblHeader" for="inpTask">Search by Category Name, Task Number or Task Title</label>
+        <div>
+            <label class="lblMargin"><input type="radio" id="radioCategoryName" class="radioTasksSearch" name="radioSearch" value="category" checked />Category Name</label>
+            <label class="lblMargin"><input type="radio" id="radioTaskNumber" class="radioTasksSearch" name="radioSearch" value="taskNumber" />Task Number</label>
+            <label class="lblMargin"><input type="radio" id="radioTaskTitle" class="radioTasksSearch" name="radioSearch" value="taskTitle" />Task Title</label>
+        </div>
+        <input type="text" id="inpTask" class="form-control ddl inpWidthTaskByCat" placeholder="Type a Category Name"
+               data-url-autocompletetask="@Url.Action("AutocompleteTask")" />
+    </div>
+</div>
+<div class="row marginLeft205">
+    <div class="form-group paddingLeft">
+        <label class="lblHeader" for="inpProjectName">Search by a Previous Project Name</label>
+        <input type="text" id="inpProjectName" class="form-control ddl inpWidthTaskByCat" placeholder="Type a Project Name"
+               data-url-autocompleteprojectname="@Url.Action("AutocompleteProjectName")" />
+    </div>
+</div>
+
+<div class="inlineBlock marginLeft225">
+    <a href="@Url.Action("GetAllTasks")" target="_blank">Click here to see a list of all tasks and task codes </a>
+</div>
+
+<input type="hidden" id="inpTaskUrl" data-task-url="@Url.Action("OpenTask")" />
+<input type="hidden" id="inpPostTaskUrl" data-post-task="@Url.Action("AddTaskToProposal")" />
+<input type="hidden" id="inpEditTask" data-edit-task-url="@Url.Action("EditTask")" />
+<input type="hidden" id="proposalId" data-proposal-id="@Model.ProposalId" />
+<input type="hidden" id="inpRemoveTask" data-url-remove="@Url.Action("RemoveTaskFromSearchPage")" />
+<input type="hidden" id="hdnRemovedMessage" value="@TempData["ImageRemoved"]" />
+
+<div id="taskByCategories" class="marginLeft225 marginTop20"></div>
+
+<div class="marginLeft225 marginTop20">
+    @{
+        if (Model.Proposal.TaskExtension.Count > 0)
+        {
+            <h4>Tasks already added</h4>
+        } }
+    <div class="divTasksAdded">
+        @{
+            foreach (var taskExtensionAdded in Model.Proposal.TaskExtension.OrderBy(te => te.TaskTitle))
+            {
+                <p><i class="ion-checkmark"> </i> @taskExtensionAdded.TaskTitle</p>
+            }
+        }
+    </div>
+</div>
+<input type="hidden" id="hdnUploadImageUrl" value="@Url.Action("UploadImage")" />
+
+<!-- Modal Add task to Proposal-->
+<div class="modal" id="modalAddEditTask" data-url="@Url.Action("AddTaskToProposal")">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">Add task to Proposal</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body-task">
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script>
+  
+    $(function () {
+        if ($('#hdnRemovedMessage').val().length > 0) {
+            $.notify('Image has been deleted', 'success');
+        }
+        //$('#uploadImagePdf').click(function () {
+        //    var file_data = $('#pdfImage').prop('files')[0];            
+        //    if (file_data === undefined || file_data === null) {
+        //        $.notify('Please make sure to select an image to upload', 'error');
+        //        return false;
+        //    }        
+        //    var form_data = new FormData();
+        //    form_data.append('file', file_data);
+        //    let urlUploadImage = $('#hdnUploadImageUrl').val();
+        //    let proposalId = $('#proposalId').data('proposal-id');
+        //    form_data.append('proposalId', proposalId);
+        //    form_data.append('operation', $(this).data('operation'));
+        //    $.ajax({
+        //        type: 'post',
+        //        url: urlUploadImage,
+        //        processData: false,
+        //        contentType: false,
+        //        data: form_data,
+        //        success: function (response) {                
+        //            if (JSON.stringify(response).indexOf('error') !== -1) {
+        //                console.log('error in response: ' + response.error)
+        //                $.notify('An error occurred trying to upload the image', 'error');
+        //            }
+        //            else {
+        //                $.notify(response.message, 'success');
+        //            }
+        //        },
+        //        error: function (errMessage) {
+        //            $.notify('An error occurred trying to upload the image', 'error');
+        //            console.log('error occurred: ' + JSON.stringify(errMessage));
+        //        }
+        //    })
+        //})
+
+        //$('#btnRemoveImage').click(function () {
+        //    let proposalId = $('#proposalId').data('proposal-id');
+        //    let urlRemove = $(this).data('url-remove-image');
+        //    $.ajax({
+        //        type: 'post',
+        //        url: urlRemove,
+        //        data: { proposalId: proposalId },
+        //        success: function () {
+        //            window.location.href=window.location.href;
+        //        },
+        //        error: function (errMessage) {
+        //            $.notify('An error occurred trying to delete the image', 'error');
+        //            console.log('An error occurred trying to delete the image: ' + JSON.stringify(errMessage));
+        //        }
+        //    });
+        //});
+
+    })
+</script>

@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = "Projects";
+}
+
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-folder-open"></i> PROJECTS</h2>
+</div>
+
+@Html.AntiForgeryToken()
+
+<div class="row rowNoMarginSide" style="width:100%;">
+    <div class="col-md-12">
+        <div class="box">           
+            <div class="pad">
+                @(Html.Kendo().Grid<ProjectFlatKendoGrid>()
+                            .Name("projectTable")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(c => c.ProjectNumber).Title("Project #").ClientTemplate("<a href='" + "Project/ProjectDetails?id=#= Id #'" + ">#= ProjectNumber #</a>").Width(120);
+                                columns.Bound(c => c.CompanyName).Title("Company Name").Width(120);
+                                columns.Bound(c => c.ProjectName).Title("Project Name").Width(80);
+                                columns.Bound(c => c.ContractNumber).Title("Contract #").Width(80);
+                                columns.Bound(c => c.ProjectStatus).Title("Project Status").Width(100);
+                            })
+                            .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+                            .Pageable(p => p.PageSizes(new int[4] { 10, 20, 50, 100 }))
+                            .Sortable()
+                            .Scrollable(s => s.Height(485))
+                            .Resizable(r => r.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(10)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model => model.Id(p => p.Id))
+                                .Read(read => read.Action("Projects_Read", "Project"))
+                            )
+                )
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+</script>

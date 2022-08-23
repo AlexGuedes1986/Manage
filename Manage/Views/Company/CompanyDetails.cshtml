@@ -1,0 +1,73 @@
+﻿@model Company
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-building"></i> COMPANIES</h2>
+</div>
+
+<div>
+    <a href="@Url.Action("Index")" class="btn btn-primary floatRight marginRight10">Go to Companies</a>
+    @{
+        if (ViewBag.CanEdit)
+        {
+            <a href="@Url.Action("CompanyAddEdit", new { Id = Model.Id})" class="btn btn-primary floatRight marginRight10">Edit Company</a>
+        }
+    }
+</div>
+<h4 class="marginLeft10">Company Details</h4>
+
+<div class="pad">
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Name:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.Name</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Address Line 1:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.AddressLine1</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Address Line 2:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.AddressLine2</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">City:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.City</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">State:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.State</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Zip Code:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.ZipCode</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Phone:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.Phone</dd>
+        </dl>
+    </div>
+
+    <div class="rowContactDetails">
+        <dl class="row" style="margin:auto;">
+            <dt class="col-sm-2">Company Fax:</dt>
+            <dd class="col-sm-9 noMarginBottom">@Model.CompanyFax</dd>
+        </dl>
+    </div>
+</div>

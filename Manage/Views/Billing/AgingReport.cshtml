@@ -1,0 +1,47 @@
+﻿<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-file-alt"></i> Aging Report</h2>
+</div>
+
+<form action="@Url.Action("AgingReportData")" method="post">
+    <div class="row">
+        <div class="col-md-1 offset-1">
+        </div>
+        <div class="col-md-2 marginbottom10">
+        </div>
+    </div>
+    <div class="row">
+        <div class="offset-1">
+            @await Component.InvokeAsync("ReportFilter")
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-1 offset-1">
+            <label class="bold">Sort By</label>
+        </div>
+        <div class="col-md-2 marginbottom10">
+            <label>Aging<input type="radio" checked name="reportSorting" value="aging" class="radioPadding" /></label><br />
+            <label>Project #<input type="radio" name="reportSorting" value="projectnumber" class="radioPadding" /></label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-1 offset-1">
+            <label class="bold">Date</label>
+        </div>
+        <div class="col-md-2 marginbottom10">
+            <input type="text" id="inpAgingReport" name="Date" class="form-control" autocomplete="off" placeholder="Select Date" />
+            <input type="submit" value="Generate Report" id="btnAgingReport" class="btn btn-success marginTop10" />
+        </div>
+    </div>
+
+</form>
+<script>
+    $(function () {
+        const pickerFromDate = datepicker('#inpAgingReport', {
+            formatter: (input, date, instance) => {
+                const value = date.toLocaleDateString();
+                input.value = value;
+            }
+        });
+    });
+</script>

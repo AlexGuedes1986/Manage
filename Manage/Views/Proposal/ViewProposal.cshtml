@@ -1,0 +1,210 @@
+﻿@model ProposalViewModel
+<div style="padding-bottom:50px;padding-top:10px;">
+    <div>
+        @if (Model.CanManage)
+        {
+            <a href="@Url.Action("EditProposal", new { id = Model.Id })" class="btn btn-primary inlineBlock ml-3 floatRight" id="btnEditProposalLink">Edit Proposal</a>
+        }
+        <a href="@Url.Action("Index")" class="btn btn-primary inlineBlock ml-3 floatRight">Go To Proposals</a>
+    </div>
+
+</div>
+<div class="col-12 paddingTop5">
+    <h4>@Model.ProjectName</h4>
+    <div class="py-4">
+        <div class="rowContactDetails">
+            <dl class="row marginAuto">
+                <dt class="col-sm-2">Proposal Number:</dt>
+                <dd class="col-sm-9 noMarginBottom">@($"{Model.ContractNumber}")</dd>
+
+            </dl>
+        </div>
+        <div class="rowContactDetails">
+            <dl class="row marginAuto">
+                <dt class="col-sm-2">Contact:</dt>
+                <dd class="col-sm-9 noMarginBottom">@($"{Model.Contact.FirstName} {Model.Contact.LastName}")</dd>
+
+            </dl>
+        </div>
+        <div class="rowContactDetails">
+            <dl class="row marginAuto">
+                <dt class="col-sm-2">Address:</dt>
+                <dd class="col-sm-9 noMarginBottom">@($"{Model.Contact.Company.AddressLine1}, {Model.Contact.Company.City}, {Model.Contact.Company.State}, {Model.Contact.Company.ZipCode}")</dd>
+            </dl>
+        </div>
+        @{
+            if (!String.IsNullOrEmpty(Model.Contact.Company.AddressLine2))
+            {
+                <div class="rowContactDetails">
+                    <dl class="row marginAuto">
+                        <dt class="col-sm-2">Address Line 2:</dt>
+                        <dd class="col-sm-9 noMarginBottom">@($"{Model.Contact.Company.AddressLine2}")</dd>
+                    </dl>
+                </div>
+            }
+        }
+
+        <div class="rowContactDetails">
+            <dl class="row marginAuto">
+                <dt class="col-sm-2">Project County:</dt>
+                <dd class="col-sm-9 noMarginBottom">@($"{Model.ProjectCounty}")</dd>
+            </dl>
+        </div>
+
+        <div class="rowContactDetails">
+            <dl class="row marginAuto">
+                <dt class="col-sm-2">BTC Office:</dt>
+                <dd class="col-sm-9 noMarginBottom">@($"{Model.BTCOffice}")</dd>
+            </dl>
+        </div>
+    </div>
+
+    @{
+        if (Model.TaskExtension.Count() > 0)
+        {
+            <div class="pb-4">
+                <h4>Task List</h4>
+                <div class="rowContactDetails border">
+                    <ol>
+                        @{
+                            foreach (var te in Model.TaskExtension)
+                            {
+                                <li class="liTask">
+                                    <div class="bold uppercase">
+                                        @($"{te.TaskTitle} ({te.TaskCodeParent}-{te.TaskCodeSub})")
+                                    </div>
+                                    <div>
+                                        @te.TaskDescription
+                                    </div>
+                                    @{
+                                        if (String.Equals(te.FeeStructure, "recurring", StringComparison.CurrentCultureIgnoreCase))
+                                        {
+                                            <div>
+                                                <span class="bold uppercase">Number of instances: @($"{te.NumberOfInstances} {te.IntervalType}")</span>
+                                            </div>
+                                        }
+                                    }
+
+                                    <div>
+                                        <p class="marginBottom0"><span class="bold">Fee Structure: </span>@String.Format("{0:n}", te.FeeStructure)</p>
+                                    </div>
+                                    <div>
+                                        @{
+                                            if (String.Equals(te.FeeStructure, "Flat Fee"))
+                                            {
+                                                <p class="marginBottom0"><span class="bold">TOTAL PRICE: </span> @String.Format("{0:n}", te.TotalPrice)</p>
+                                            }
+                                            if (String.Equals(te.FeeStructure, "Hourly Not To Exceed"))
+                                            {
+                                                <p class="marginBottom0"><span class="bold">Not to Exceed Total Price: </span> @String.Format("{0:n}", te.NotToExceedTotalPrice)</p>
+                                            }
+                                            if (String.Equals(te.FeeStructure, "Per Event"))
+                                            {
+                                                <p class="marginBottom0"><span class="bold">Event Price: </span>@String.Format("{0:n}", te.InstancePrice)</p>
+                                            }
+                                            if (String.Equals(te.FeeStructure, "Recurring"))
+                                            {
+                                                <p class="marginBottom0"><span class="bold">TOTAL PRICE: </span> @String.Format("{0:n}", te.TotalPrice)</p>
+                                            }
+                                        }
+
+                                    </div>
+                                    @{
+                                        if (!String.IsNullOrEmpty(te.Note))
+                                        {
+                                            <div>
+                                                <span class="bold">NOTES:</span><span> @te.Note</span>
+                                            </div>
+                                        }
+                                    }
+
+                                </li>
+                            }
+                        }
+                    </ol>
+                </div>
+            </div>
+        }
+    }
+
+    <div class="pb-4">
+        <h4>Author</h4>
+        <div class="rowContactDetails border">
+            <div class="col-md-6">
+                @Model.AuthorFormattedName
+            </div>
+        </div>
+    </div>
+
+
+    @{
+        if (Model.ProjectManagers.Count() > 0)
+        {
+            <div class="pb-4">
+                <h4>Project Managers</h4>
+                <div class="rowContactDetails border">
+                    @{
+                        foreach (var pm in Model.ProjectManagers)
+                        {
+                            <div class="col-md-6">
+                                @($"{pm.FirstName} {pm.LastName}")
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+        if (Model.ProposalTeamMember.Count > 0)
+        {
+            <div class="pb-4">
+                <h4>Team Members</h4>
+                <div class="rowContactDetails border">
+                    @{
+                        foreach (var tm in Model.ProposalTeamMember)
+                        {
+                            <div class="col-md-6">
+                                @tm.FormattedName
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    }
+
+
+    <a class="btn btn-primary" target="_blank" href="@Url.Action("PreviewPdf", new { id = Model.Id})">Preview Proposal PDF</a>
+    @* Displaying Activate button and Project Number input only for corresponding roles... *@
+    @if (Model.CanActive)
+    {
+        if (Model.IsActive)
+        {
+            <div class="marginVertical divProjectNumber">
+                <label for="ProjectNumber">Project Number:</label>
+                <input id="ProjectNumber" name="ProjectNumber" type="text" />
+                <button type="button" class="btn btn-primary btnSubmitProjectNumber btn btn-primary" data-url-submit-p-number="@Url.Action("SetProjectNumber")"
+                        data-url-project="@Url.Action("Index", "Project")">
+                    Submit
+                </button>
+            </div>
+        }
+
+        if (!Model.IsActive)
+        {
+            <div class="marginVertical divProjectNumber displayNone">
+                <label for="ProjectNumber">Project Number:</label>
+                <input id="ProjectNumber" name="ProjectNumber" type="text" />
+                <button type="button" class="btn btn-primary btnSubmitProjectNumber" data-url-submit-p-number="@Url.Action("SetProjectNumber")"
+                        data-url-project="@Url.Action("Index", "Project")">
+                    Submit
+                </button>
+            </div>
+            <button class="btn btn-primary" id="btnActivateProject" data-url-activate-project="@Url.Action("ActivateProject", new { proposalId = Model.Id})">
+                Activate Project
+            </button>
+        }
+    }
+
+    <input type="hidden" id="hiddenProposalId" data-proposal-id="@Model.Id" />
+    <p id="pActivateError" class="textRed whiteSpacePreLine"></p>
+</div>

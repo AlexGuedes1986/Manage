@@ -1,0 +1,66 @@
+﻿@model TaskBioTechVM
+
+@{
+    ViewData["Title"] = "Add Task";
+}
+
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-tasks"></i> TASKS</h2>
+</div>
+
+<div class="col-12">
+    <div>
+        <h4>Add task</h4>
+    </div>   
+    <form asp-action="Create" method="post">
+        <div>
+            <label>Task Title:</label>
+            <div>          
+                <input asp-for="TaskTitle" class="form-control col-md-5" />
+            </div>
+            <span asp-validation-for="TaskTitle" class="text-danger"></span>
+        </div>
+        <div>
+            <label>Task Code Parent:</label>
+            <div>              
+                <input type="text" asp-for="TaskCodeParent" class="form-control col-md-5" />
+            </div>
+            <span asp-validation-for="TaskCodeParent" class="text-danger"></span>
+        </div>
+        <div>
+            <label>Task Code Sub:</label>
+            <div>               
+                <input type="text" asp-for="TaskCodeSub" class="form-control col-md-5" />
+            </div>
+            <span asp-validation-for="TaskCodeSub" class="text-danger"></span>
+        </div>
+        <div>
+            <label>Description:</label>
+            <div>
+                <textarea class="textAreaSize form-control col-md-5" name="TaskDescription">@Model.TaskDescription</textarea>
+            </div>
+            <span asp-validation-for="TaskDescription" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label>Category: </label>
+            <select name="Category" class="form-control col-md-2">
+                <option value="">Please select a category</option>
+                @{
+                    foreach (var category in Model.CategoriesList)
+                    {
+                        if (String.Equals(category, Model.Category))
+                        {
+                            <option value="@category" selected>@category</option>
+                        }
+                        else
+                        {
+                            <option value="@category">@category</option>
+                        }
+                    }
+                }
+            </select>            
+            <span asp-validation-for="Category" class="text-danger"></span>       
+        </div>      
+        <input type="submit" value="Add" class="btn btn-primary btnMargin" />
+    </form>
+</div>

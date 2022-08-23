@@ -1,0 +1,84 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ApplicationUser appUser = UserManager.FindByNameAsync(User.Identity.Name).Result;
+    var userRoles = await UserManager.GetRolesAsync(appUser);
+}
+
+<aside class="main-sidebar">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+        <!-- Sidebar user panel -->
+        <!-- /.search form -->
+        <!-- sidebar menu: : style can be found in sidebar.less -->
+        <ul class="sidebar-menu" data-widget="tree">
+            <li class="header">MAIN NAVIGATION</li>
+            <li class="active">
+                <a href="/">
+                    <i class="fa fa-tachometer-alt"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("Index", "Project")">
+                    <i class="fa fa-folder-open"></i>
+                    <span>Projects</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("Index","Proposal")">
+                    <i class="fa fa-file-alt"></i>
+                    <span>Proposals</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("Index", "Contact")">
+                    <i class="fa fa-address-book"></i>
+                    <span>Contacts</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("Index", "Timesheet")">
+                    <i class="fa fa-calendar-alt"></i>
+                    <span>Timesheets</span>
+                </a>
+            </li>
+            @{
+                if (userRoles.Contains("Billing"))
+                {
+                    <li>
+                        <a href="@Url.Action("Index", "Billing")">
+                            <i class="fa fa-money-bill"></i>
+                            <span>Billing</span>
+                        </a>
+                    </li>
+                }
+            }
+            @{
+                if (userRoles.Contains("Billing"))
+                {
+                    <li>
+                        <a href="@Url.Action("Index", "Task")">
+                            <i class="fa fa-tasks"></i>
+                            <span>Tasks</span>
+                        </a>
+                    </li>
+                }
+            }
+
+            @{
+               <li>
+                     <a href="@Url.Action("Index", "Company")">
+                        <i class="fa fa-building"></i>
+                        <span>Companies</span>
+                     </a>
+                 </li>
+            }
+
+
+        </ul>
+    </section>
+    <!-- /.sidebar -->
+</aside>

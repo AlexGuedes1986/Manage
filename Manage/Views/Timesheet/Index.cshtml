@@ -1,0 +1,292 @@
+﻿@model TimesheetViewModel
+
+<link href="https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.css" rel="stylesheet">
+<link href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css" rel="stylesheet">
+
+<script src="https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/resizable/bootstrap-table-resizable.min.js"></script>
+
+@{
+    CultureInfo ci = new CultureInfo("en-us");
+}
+
+<div id="pageHeading">
+    <h2 class="headingAndButton"><i class="fa fa-calendar-alt"></i> TIMESHEETS</h2>
+</div>
+<div class="col-12">
+    <div class="pt-4">
+        @{
+            if (Model.HasAdminPermission)
+            {
+                <select id="selectUserTS" class="form-control">
+                    <option value="">Please select a user</option>
+                    @foreach (var tuTS in Model.UsersTimesheet.OrderBy(u => u.LastName))
+                    {
+                        <option value="@tuTS.UserId" data-selected-option="@tuTS.Selected" data-approved="@tuTS.TimesheetsCurrentApproved">
+                            @String.Format(tuTS.LastName + " , " + tuTS.FirstName)
+                        </option>
+
+                    }
+                </select>
+                <input type="hidden" id="hdnUserIdTS" name="userId" value="@Model.UserFilteredId" data-url-index="@Url.Action("Index")" />
+            }
+        }
+        <a href="@Url.Action("Index", new { date = Model.EffectiveDate.Value.AddDays(-7), userId = Model.UserFilteredId })" class="col-md-3"> < Previous Week</a>
+        <span class="col-md-3" id="spnEffectiveDate" data-effective-date="@Model.EffectiveDate.Value.ToString("MM/dd/yyyy")">
+            Week of @Model.EffectiveDate.Value.ToString("MM/dd/yyyy")
+        </span>
+        <a href="@Url.Action("Index", new { date = Model.EffectiveDate.Value.AddDays(7), userId = Model.UserFilteredId })" class="col-md-3">Next Week ></a>
+        <button type="button" id="btnResetTS" class="btn btn-primary">Reset</button>
+        <input type="text" id="inpDateTimesheet" class="offset-1 form-control inputDateTS" />
+    </div>
+    <div class="inlineBlock marginTop10 pb-4">
+        <a class="btn btn-primary" href="@Url.Action("ManageTask", "Project")">Add Task</a>
+        @{
+            if (Model.HasAdminPermission)
+            {
+                if (Model.IsApproved)
+                {
+                    <input type="hidden" id="hdnApprovedTSId" value="@Model.TimeSheetApprovedRangeId" />
+                    <input type="hidden" id="urlUnapprove" value="@Url.Action("UnapproveTimesheet")" />
+                    <a class="btn btn-primary btnUnapprove" href="#">Unapprove</a>
+                }
+                else
+                {
+                    <a class="btn btn-primary btnApprove" href="#">Approve</a>
+                }
+            }
+
+        }
+    </div>
+    <div class="divHoursEntered">
+        <span>Hours entered this week: @Model.HoursEnteredThisWeek</span>
+        <br />
+        <span>Total Amount Billed this Week: @Model.TotalAmountBilledThisWeek.ToString("C", ci)</span>
+        <i id="iRefreshTimesheets" class="fas fa-sync"></i>
+    </div>
+    @{
+        if (Model.TaskUserModels.Count > 0)
+        {
+            <table class="table-striped table-hover table-bordered tableTimesheet" id="tableTimesheets">
+                <thead>
+                    <tr class="bold">
+                        <th data-sortable="true">Project #</th>
+                        <th>Contract #</th>
+                        <th>Project Name</th>
+                        <th>Task Code</th>
+                        <th>Task Title</th>
+                        <th>Status</th>
+                        <th>Note</th>
+                        @{
+                            //5 days a week, this is how we are displaying the days of the current week by separate for now...
+                            for (int i = 0; i < 7; i++)
+                            {
+                                <th>@($"{Model.StartWeek.AddDays(i).ToString("ddd")} {Model.StartWeek.AddDays(i).ToString("MM/dd")}")</th>
+                            }
+                        }
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                @{
+                    if (Model.TaskUserModels.Count == 0)
+                    {
+                        for (int i = 0; i < 2; i++)
+                        {
+                            <tr class="height25">
+                                @for (int j = 0; j < 13; j++)
+                                {
+                                    <td></td>
+                                }
+                            </tr>
+                        }
+
+                    }
+                    foreach (var taskUser in Model.TaskUserModels)
+                    {
+                        <tr class="taskInfo" data-require-comment="@taskUser.RequireComment" data-fee-structure="@taskUser.FeeStructure"
+                            data-remaining-time="@taskUser.RemainingTimeHourlyNotToExceed" data-not-exceed="@taskUser.IsHourlyRateNotExceed"
+                            data-project-date="@taskUser.ProjectDate">
+                            <td><a href="@Url.Action("ProjectDetails", "Project", new { id = taskUser.ProposalId })">@taskUser.ProjectNumber</a></td>
+                            <td>@taskUser.ContractNumber</td>
+                            <td>@taskUser.ProjectName</td>
+                            <td>@taskUser.TaskCode</td>
+                            <td class="tdTaskTitle" data-taskuserid="@taskUser.TaskUserId">@taskUser.TaskTitle</td>
+                            <td class="tdTaskStatus">@taskUser.Status</td>
+                            <td>@taskUser.Note</td>
+                            @{
+                                bool inputAdded = false;
+                                for (int i = 0; i < 7; i++)
+                                {
+                                    <td>
+                                        @{
+                                            if (taskUser.TimesheetEntries.Count > 0)
+                                            {
+                                                if (!String.Equals(taskUser.Status, "Complete"))
+                                                {
+                                                    foreach (var timesheetEntry in taskUser.TimesheetEntries)
+                                                    {
+                                                        inputAdded = false;
+                                                        if (timesheetEntry.DateModified.Date == Model.StartWeek.AddDays(i).Date)
+                                                        {
+                                                            inputAdded = true;
+                                                            if (Model.IsApproved)
+                                                            {
+                                                                <span>@timesheetEntry.HoursWorked</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                if (timesheetEntry.HoursWorked > 0)
+                                                                {
+                                                                    <input type="text" class="inpHoursEntry" value="@timesheetEntry.HoursWorked"
+                                                                           data-selected-date="@Model.StartWeek.AddDays(i).ToString("MM/dd/yyyy")" />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <input type="text" class="inpHoursEntry" data-selected-date="@Model.StartWeek.AddDays(i).ToString("MM/dd/yyyy")" />
+                                                                }
+
+                                                            }
+                                                            <input type="hidden" class="tsEntryId" value="@timesheetEntry.Id" />
+                                                            <input type="hidden" class="tsEntryNote" value="@timesheetEntry.Comment" />
+                                                            <input type="hidden" class="tsEntryType" value="@timesheetEntry.TimesheetEntryType" />
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (inputAdded == false && Model.IsApproved == false)
+                                                    {
+                                                        <input type="text" class="inpHoursEntry" data-selected-date="@Model.StartWeek.AddDays(i).ToString("MM/dd/yyyy")" />
+                                                    }
+                                                    if (inputAdded == false && Model.IsApproved)
+                                                    {
+                                                        <span></span>
+                                                    }
+                                                }
+                                                //If the Status is complete just display an span with the value of the Timesheet entries...
+                                                else
+                                                {
+                                                    foreach (var timesheetEntry in taskUser.TimesheetEntries)
+                                                    {
+                                                        inputAdded = false;
+                                                        if (timesheetEntry.DateModified.Date == Model.StartWeek.AddDays(i).Date)
+                                                        {
+                                                            <span>@timesheetEntry.HoursWorked</span>
+                                                            <input type="hidden" class="tsEntryId" value="@timesheetEntry.Id" />
+                                                            <input type="hidden" class="tsEntryNote" value="@timesheetEntry.Comment" />
+                                                            <input type="hidden" class="tsEntryType" value="@timesheetEntry.TimesheetEntryType" />
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (Model.IsApproved || String.Equals(taskUser.Status, "Complete"))
+                                                {
+                                                    <span></span>
+                                                }
+                                                else
+                                                {
+                                                    <input type="text" class="inpHoursEntry" data-selected-date="@Model.StartWeek.AddDays(i).ToString("MM/dd/yyyy")" />
+                                                }
+                                            }
+                                        }
+
+                                    </td>
+                                }
+                            }
+                            <td><a class="aRemoveFromTimesheet" data-remove-from-timesheet="@Url.Action("RemoveFromTimesheet")" href="#">Remove</a></td>
+                        </tr>
+                    }
+                }
+            </table>
+        }
+        else
+        {
+            <h5>Currently you don't have any tasks assigned.</h5>
+        }
+    }
+
+    <div class="flex divTimeSheetBtnsAndForm">
+        <div class="inlineBlock divFormTimesheet col-md-8">
+            <form id="formTimesheetEntry">
+                <div class="row rowts">
+                    <label class="bold col-md-2">Selected Task:</label>
+                    <div class="col-md-8 marginTop05Rem">
+                        <span class="pMargin spanSelectedTask"></span>
+                    </div>
+                </div>
+                <div class="row rowts">
+                    <label class="bold col-md-2">Selected Date:</label>
+                    <div class="col-md-6 marginTop05Rem">
+                        <span class="pMargin spanSelectedDate"></span>
+                    </div>
+                </div>
+                <div class="row rowts">
+                    <label class="bold col-md-2">Hours Worked:</label>
+                    <div class="col-md-10 divHoursWorked">
+                        <input type="text" name="HoursWorked" class="inpHoursWorked form-control maxWidth130" />
+                    </div>
+                    <span id="spanWarningHourlyNotToExceed"></span>
+                </div>
+                <div id="divHourlyRateContainer">
+                </div>
+                <div class="row rowts col-md-6">
+                    <div class="col-md-3">
+                        <input type="radio" id="rdBilled" value="billed" name="TimesheetEntryType" checked />
+                        <label for="rdBilled">Billable</label>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="radio" id="rdTracking" value="tracking" name="TimesheetEntryType" />
+                        <label for="rdTracking">Tracking</label>
+                    </div>
+                </div>
+                <div class="row rowts col-md-6">
+                    <label class="lblRequireComment"><input type="checkbox" name="TaskCompleted" class="inpTaskComplete" value="true" />Task Complete</label>
+                </div>
+                <div class="row rowts col-md-6"><p class="bold pRequireComment">This entry requires a comment</p></div>
+                <div class="row rowts">
+                    <label class="bold col-md-2">Comment:</label>
+                    <div class="col-md-10">
+                        <textarea id="txtaComment" placeholder="Helpful note for invoicing" class="textAreaSize" name="Comment"></textarea>
+                    </div>
+                </div>
+                <input type="hidden" name="RequireComment" id="hdnRequireComment" />
+                <p class="pErrorMessageTimesheetEntry textRed whiteSpacePreLine"></p>
+                <div class="row col-md-2">
+                    <button class="btn btn-primary" type="button" id="btnApplyTimesheet" data-url-add-ts-entry="@Url.Action("AddTimesheetEntry")">
+                        Apply
+                    </button>
+                </div>
+                <input type="hidden" name="Id" id="formTimesheetEntryId" />
+            </form>
+        </div>
+    </div>
+
+    <input type="hidden" id="hdnEffectiveDate" value="@Model.EffectiveDate.Value.ToString("M/dd/yyyy")" data-url-date-changed="@Url.Action("Index")" />
+    <input type="hidden" id="hdnAutocompleteUser" data-url-autocomplete-user="@Url.Action("AutoCompleteTeamMember", "Proposal")" />
+    <input type="hidden" id="hdnBillingRole" value="@Model.BillingRole" />
+    <input type="hidden" id="hdnDateStart" value="@Model.StartWeek" />
+    <input type="hidden" id="hdnDateEnd" value="@Model.EndWeek" />
+    <input type="hidden" id="hdnUserId" value="@Model.UserFilteredId" />
+    <input type="hidden" id="hdnApproveUrl" value="@Url.Action("ApproveTimesheet")" />
+    <input type="hidden" id="CalculateHourlyNotToExceedRemTime" data-url="@Url.Action("CalculateLiveRemainingTimeHourlyTaskAjax")" />
+    <input type="hidden" id="notToExceedContainer" />
+</div>
+<script>
+    $(function () {
+        $('#tableTimesheets').bootstrapTable();
+        const picker = datepicker('#inpDateTimesheet', {
+            formatter: (input, date, instance) => {
+                const value = date.toLocaleDateString();
+                input.value = value;
+            },
+            onSelect: (instance, date) => {
+                url = $('#hdnEffectiveDate').data('url-date-changed') + '?date=';
+                var dateValue = $('#inpDateTimesheet').val();
+                var encodedDateValue = encodeURIComponent(dateValue);
+                document.location.href = url + encodedDateValue;
+            }
+        });
+    })
+</script>

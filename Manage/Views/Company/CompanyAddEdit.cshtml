@@ -1,0 +1,91 @@
+﻿@using  BioTech.ViewModels
+@model CompanyViewModel
+
+@{
+    var caption = Model.Id > 0 ? "Edit Company" : "Add New Company";
+    var displayMessage = ViewBag.CompanyMessage;
+}
+
+
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-building"></i> COMPANIES</h2>
+</div>
+<div>
+    <a href="@Url.Action("Index")" class="btn btn-primary floatRight">Go to Companies</a>
+    <h4 style="margin-left:25px;">@caption</h4>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="pad">
+            <form method="post" action="@Url.Action("CompanyAddEdit")" id="frmCompanyAddEditComp">
+                @Html.HiddenFor(m => m.Id)
+
+                <div class="row">
+                    <div class="col">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="col">
+                        <label asp-for="AddressLine1" class="control-label"></label>
+                        <input asp-for="AddressLine1" class="form-control" />
+                        <span asp-validation-for="AddressLine1" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label asp-for="AddressLine2" class="control-label"></label>
+                        <input asp-for="AddressLine2" class="form-control" />
+                        <span asp-validation-for="AddressLine2" class="text-danger"></span>
+                    </div>
+                    <div class="col">
+                        <label asp-for="City" class="control-label"></label>
+                        <input asp-for="City" class="form-control" />
+                        <span asp-validation-for="City" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        @Html.LabelFor(m => m.State)
+                        @Html.DropDownListFor(m => m.State, Model.AvailableStates, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.State)
+                    </div>
+                    <div class="col">
+                        <label asp-for="ZipCode" class="control-label"></label>
+                        <input asp-for="ZipCode" class="form-control" />
+                        <span asp-validation-for="ZipCode" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label asp-for="Phone" class="control-label"></label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                    <div class="col">
+                        <label asp-for="CompanyFax" class="control-label"></label>
+                        <input asp-for="CompanyFax" class="form-control" />
+                        <span asp-validation-for="CompanyFax" class="text-danger"></span>
+                    </div>
+                </div>
+                <p>
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger field-validation-error" })
+                </p>
+                <button class="btn btn-primary" id="btnSaveCompanyAddEdit">Save</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="hdnDisplayMessage" value="@displayMessage" />
+
+<script>
+    $(function () {
+        let displayMessage = $('#hdnDisplayMessage').val();
+        if (displayMessage.length > 0) {
+             $.notify(displayMessage, 'success');
+        }
+    })
+</script>

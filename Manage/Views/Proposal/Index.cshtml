@@ -1,0 +1,165 @@
+﻿@model bool
+@{
+    ViewData["Title"] = "Proposals";
+}
+
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-file-alt"></i> PROPOSALS</h2>
+</div>
+
+@Html.AntiForgeryToken()
+
+<div class="row rowNoMarginSide" style="width:100%;">
+    <div class="col-md-12">
+        <div class="box">
+            <h4 class="proposalsPendingHeader">Proposals Pending Activation</h4>
+            <div class="pad">
+                @(Html.Kendo().Grid<ProposalViewModel>()
+                            .Name("proposalTable")
+                            .Columns(columns =>
+                            {
+                                if (Model)
+                                {
+                                    columns.Bound(c => c.Id).Title("&nbsp;")
+                                  .ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Proposal/EditProposal/${id}'><span class='k-icon k-i-edit'></span>Edit</a>")
+                                  .Width(80).Filterable(false);
+                                }
+
+                                columns.Bound(c => c.Client).Title("Client").Width(120);
+                                columns.Bound(c => c.ProjectName).Title("Project Name").Width(120);
+                                columns.Bound(c => c.ProjectCounty).Title("Project County").Width(120);
+                                columns.Bound(c => c.BTCOffice).Title("BTC Office").Width(80);
+                                columns.Bound(c => c.ContractNumber).Title("Contract Number").Width(120);
+                                if (Model)
+                                {
+                                    columns.Command(command => { command.Destroy(); }).Width(80);
+                                }
+                                columns.Bound(c => c.Id).Title("&nbsp;")
+                                    .ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Proposal/ViewProposal/${id}' ><span class='k-icon k-i-arrow-right'></span>View</a>")
+                                    .Width(80).Filterable(false);
+                            })
+                            .ToolBar(toolbar =>
+                            {
+                                if (Model)
+                                {
+                                    toolbar.ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Proposal/Create' ><span class='k-icon k-i-plus'></span>Add Proposal</a>");
+                                }
+                            }
+                            )
+                            .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+                            .Pageable(p => p.PageSizes(new int[4] { 10, 20, 50, 100 }))
+                            .Sortable()
+                            .Scrollable(s => s.Height(485))
+                            .Resizable(r => r.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(10)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model => model.Id(p => p.Id))
+                                .Create(update => update.Action("Create", "Proposal"))
+                                .Read(read => read.Action("Proposals_Read", "Proposal"))
+                                .Update(update => update.Action("Proposal_Update", "Proposal"))
+                                .Destroy(update => update.Action("Proposal_Destroy", "Proposal")) //Proposal_Destroy will just set the user IsActive property either to 'true' or 'false'
+                                   )
+                )
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="row rowNoMarginSide" style="width:100%;">
+    <div class="col-md-12">
+        <div class="box">
+            <h4 class="proposalsPendingHeader">Executed Proposals</h4>
+            <div class="pad">
+                @(Html.Kendo().Grid<ProjectFlatKendoGrid>()
+                            .Name("projectTable")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(c => c.ProjectNumber).Title("Project #").ClientTemplate("<a href='" + "Project/ProjectDetails?id=#= Id #'" + ">#= ProjectNumber #</a>").Width(80);
+                                columns.Bound(c => c.CompanyName).Title("Company Name").Width(120);
+                                columns.Bound(c => c.ProjectName).Title("Project Name").Width(120);
+                                columns.Bound(c => c.ProjectCounty).Title("Project County").Width(120);
+                                columns.Bound(c => c.BTCOffice).Title("BTC Office").Width(80);
+                                columns.Bound(c => c.ContractNumber).Title("Contract #").Width(80);
+                            })
+                            .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+                            .Pageable(p => p.PageSizes(new int[4] { 10, 20, 50, 100 }))
+                            .Sortable()
+                            .Scrollable(s => s.Height(485))
+                            .Resizable(r => r.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(10)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model => model.Id(p => p.Id))
+                                .Read(read => read.Action("Projects_Read", "Project"))
+                            )
+                )
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="row rowNoMarginSide" style="width:100%;">
+    <div class="col-md-12">
+        <div class="box">
+            <h4 class="proposalsPendingHeader">Executed Proposals</h4>
+            <div class="pad">
+                @(Html.Kendo().Grid<ProjectFlatKendoGrid>()
+                            .Name("projectTable")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(c => c.ProjectNumber).Title("Project #").ClientTemplate("<a href='" + "Project/ProjectDetails?id=#= Id #'" + ">#= Id #</a>").Width(80);
+                                columns.Bound(c => c.CompanyName).Title("Company Name").Width(120);
+                                columns.Bound(c => c.ProjectName).Title("Project Name").Width(120);
+                                columns.Bound(c => c.ProjectCounty).Title("Project County").Width(120);
+                                columns.Bound(c => c.BTCOffice).Title("BTC Office").Width(80);
+                                columns.Bound(c => c.ContractNumber).Title("Contract #").Width(80);
+                            })
+                            .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+                            .Pageable(p => p.PageSizes(new int[4] { 10, 20, 50, 100 }))
+                            .Sortable()
+                            .Scrollable(s => s.Height(485))
+                            .Resizable(r => r.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(10)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model => model.Id(p => p.Id))
+                                .Read(read => read.Action("Projects_Read", "Project"))
+                            )
+                )
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var grid = $("#proposalTable").data("kendoGrid");
+    });
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+</script>

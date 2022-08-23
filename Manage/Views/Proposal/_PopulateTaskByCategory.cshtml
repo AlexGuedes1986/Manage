@@ -1,0 +1,30 @@
+﻿@using BioTech.ViewModels;
+@model IEnumerable<TaskBioTechViewModel>
+@{
+    Layout = null;
+}
+
+@{
+    foreach (var taskVM in Model)
+    {
+    <div class="form-group divMarginSides">
+        <label class="lblTaskVM" for="@taskVM.Id" title="@taskVM.TaskDescription">@taskVM.TaskTitle</label>   
+
+        @{ if (taskVM.IsAddedToProject)
+            {             
+                <i class="fa fa-edit marginLeft10 editTask cursorPointer" title="Edit"></i>
+                <i class="fa fa-trash marginLeft10 removeTask cursorPointer" title="Remove"></i>
+            }
+            else
+            {
+                <i class="fa fa-plus cursorPointer marginLeft10 addTask" title="Add"></i>
+            }
+        }
+        <input type="hidden" class="taskExtensionId" value="@taskVM.TaskIdAssignedToProposal" />
+        @Html.HiddenFor(m => taskVM.Id)
+        <p class="displayNone">@taskVM.TaskDescription</p>
+    </div>
+    }
+
+}
+

@@ -1,0 +1,80 @@
+﻿@using BioTech.ViewModels
+@{
+    ViewData["Title"] = "Users";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="row rowNoMarginSide" style="width:100%;">
+    <div class="col-md-12">
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title d-flex align-items-center justify-content-center h-100">Users</h3>
+            </div>
+            <div class="pad">
+                @(Html.Kendo().Grid<UserRegistrationViewModel>()
+                            .Name("userTable")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(c => c.Id).Title("&nbsp;")
+                                    .ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Admin/EditUser/${id}'><span class='k-icon k-i-edit'></span>Edit</a>")
+                                    .Width(80).Filterable(false);
+                                columns.Bound(c => c.FirstName).Title("First Name").Width(120);
+                                columns.Bound(c => c.LastName).Title("Last Name").Width(120);
+                                columns.Bound(c => c.Email).Title("Email").Width(230);
+                                columns.Bound(c => c.UserName).Title("UserName").Width(120);
+                                columns.Bound(c => c.Phone).Title("Phone").Width(100);
+                                columns.Bound(c => c.BillingRole).Title("Billing Role").Width(155);
+                                columns.Bound(c => c.IsActive).Title("Active")
+                                    .ClientTemplate("<i class='ion-checkmark #= IsActive ? '': 'invisible' #' aria-hidden='true'></i>")
+                                    .Width(70).Filterable(false);
+                            })
+                            .ToolBar(toolbar =>
+
+                                toolbar.ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Identity/Account/Register' ><span class='k-icon k-i-plus'></span>Add User</a>")
+                            )
+                            .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+                            .Pageable(p => p.PageSizes(new int[4] { 10, 20, 50 , 100 }))
+                            .Sortable()
+                            .Scrollable(s => s.Height(485))
+                            .Resizable(r => r.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(10)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model => model.Id(p => p.Id))
+                                .Create(update => update.Action("Users_Create", "Admin"))
+                                .Read(read => read.Action("Users_Read", "Admin"))
+                                .Update(update => update.Action("Users_Update", "Admin"))
+                                .Destroy(update => update.Action("Users_Destroy", "Admin"))
+                            )
+                )
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var grid = $("#userTable").data("kendoGrid");
+        var companyGrid = $("#companyTable").data("kendoGrid");  
+    });
+    
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+</script>

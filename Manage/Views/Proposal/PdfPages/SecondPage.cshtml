@@ -1,0 +1,57 @@
+﻿@model ProposalViewModel
+@{
+    Layout = null;
+}
+<br />
+<h2 style="justify-content:center; width:700px;margin:auto;text-align:center;font-family:'Times New Roman';font-size:16pt;">
+   PROPOSAL FOR ENVIRONMENTAL SERVICES
+    <br />
+    @Model.ProjectName.ToUpper()
+    <br />
+    BTC PROPOSAL No. @Model.ContractNumber
+</h2>
+<div style="font-size:16pt; width:920px; margin-top:40px; font-family:'Times New Roman';">
+    @{
+        var counter = 0;
+        foreach (var te in Model.TaskExtension)
+        {
+            counter++;
+            <span style="font-weight:bold;">@($"{counter}.")</span><span style="font-weight:bold;padding-left:20px;"> @($"{te.TaskTitle} ({te.TaskCodeParent}-{te.TaskCodeSub})")</span>
+            <br />
+            <p style="margin:0 0 0 40px;font-size:16.1pt;text-align:justify;padding-right:15px;">
+                @te.TaskDescription
+            </p>
+            if (!String.IsNullOrEmpty(te.Note))
+            {
+                <div style="padding-left: 40px;">
+                    <span style="font-weight: bold;">NOTES: </span><span style="text-align:justify;">@te.Note</span>
+                </div>
+            }
+            if (String.Equals(te.FeeStructure, "recurring", StringComparison.CurrentCultureIgnoreCase))
+            {
+                <span style="font-weight:bold;padding-left:40px;">Number of instances: </span><span>@($"{te.NumberOfInstances} {te.IntervalType}")</span>
+                <br />
+                <span style="font-weight:bold;padding-left:40px;">TOTAL PRICE: </span><span>@String.Format("${0:n}", te.TotalPrice)</span>
+            }
+            if (String.Equals(te.FeeStructure, "Flat Fee"))
+            {
+                <span style="font-weight:bold;padding-left:40px;">TOTAL PRICE: </span><span>@String.Format("${0:n}", te.TotalPrice)</span>
+            }
+            if (String.Equals(te.FeeStructure, "Hourly Not To Exceed"))
+            {
+<span style="font-weight:bold;padding-left:40px;">Hourly Not to Exceed Total Price: </span><span>@String.Format("${0:n}", te.NotToExceedTotalPrice)</span>
+            }
+            if (String.Equals(te.FeeStructure, "Per Event"))
+            {
+                <span style="font-weight:bold;padding-left:40px;">Event Price: </span><span>@String.Format("${0:n}", te.InstancePrice)</span>
+            }
+            if (String.Equals(te.FeeStructure, "Hourly"))
+            {
+                <span style="font-weight:bold;padding-left:40px;">TOTAL PRICE: </span><span>Hourly per time and materials schedule</span>
+            }
+
+            <br />
+            <br />
+        }
+    }
+</div>

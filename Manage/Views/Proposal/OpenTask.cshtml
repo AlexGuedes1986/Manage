@@ -1,0 +1,87 @@
+﻿@model TaskExtensionViewModel
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="~/css/site.css" />
+<form id="formAddTaskModal" data-url-add-task="@Url.Action("AddTaskToProposal")">
+    <div class="parentTaskDiv">
+        <div class="row taskContent displayBlock">
+            <h5>@Model.FormattedTaskName</h5>
+            <p>@Model.TaskDescription</p>
+        </div>
+        <input type="hidden" name="TaskBioTechId" value="@Model.TaskBioTechId" />
+        <div class="row taskContent">
+            <div class="col-md-2 inlineBlock">@Html.LabelFor(m => m.FeeStructure)</div>
+            <div class="col-md-9 inlineBlock">
+                @Html.DropDownListFor(m => m.FeeStructure, Model.AvailableFeeStructures, new { @class = "form-control ddlFeeStructure" })
+                @Html.ValidationMessageFor(m => m.FeeStructure)
+            </div>
+        </div>
+
+        <div class="row taskContent divEventPrice">
+            <div class="col-md-2 inlineBlock">
+                <label asp-for="InstancePrice"></label>
+            </div>
+            <div class="col-md-9 inlineBlock">
+                <input asp-for="InstancePrice" class="form-control inpTask" value="0" />
+                @Html.ValidationMessageFor(m => m.InstancePrice)
+            </div>
+        </div>
+
+        <div class="row col-md-10 divRecurring hideElement taskContent">
+            <div class="form-group">
+                @Html.LabelFor(m => m.NumberOfInstances)
+                <input asp-for="NumberOfInstances" class="form-control inpInstances" type="text" />
+                @Html.LabelFor(m => m.IntervalType)
+                @Html.DropDownListFor(m => m.IntervalType, Model.AvailableIntervalTypes, new { @class = "form-control ddlInterval" })
+                @Html.ValidationMessageFor(m => m.NumberOfInstances)
+                @Html.ValidationMessageFor(m => m.IntervalType)
+            </div>
+        </div>
+
+        <div class="row taskContent divTotalPrice">
+            <div class="col-md-2 inlineBlock">
+                <label asp-for="TotalPrice"></label>
+            </div>
+            <div class="col-md-9 inlineBlock">
+                <input asp-for="TotalPrice" class="form-control inpTask" value="0" />
+                @Html.ValidationMessageFor(m => m.TotalPrice)
+            </div>
+        </div>
+
+        <div class="row taskContent divNotToExceedTotalPrice">
+            <div class="col-md-2 inlineBlock">
+                <label asp-for="NotToExceedTotalPrice"></label>
+            </div>
+            <div class="col-md-9 inlineBlock">
+                <input asp-for="NotToExceedTotalPrice" class="form-control inpTask" value="0" />
+                @Html.ValidationMessageFor(m => m.NotToExceedTotalPrice)
+            </div>
+        </div>
+
+        <div class="row taskContent">
+            <div class="col-md-2 inlineBlock">
+                <label>Note </label>
+            </div>
+            <div class="col-md-9 inlineBlock">
+                <textarea class="form-control" name="Note"></textarea>
+                @Html.ValidationMessageFor(m => m.Note)
+            </div>
+        </div>
+
+        <div id="divTaskPostMessage"></div>
+        <input type="hidden" asp-for="TaskTitle" />
+        <input type="hidden" asp-for="TaskDescription" />
+        <input type="hidden" asp-for="TaskCodeParent" />
+        <input type="hidden" asp-for="TaskCodeSub" />
+        <input type="hidden" asp-for="Category" />
+
+        <div class="form-group divFormButtons">
+            <input type="button" class="btn btn-primary" value="Add Task" id="btnAddTaskProp" />
+            <input type="button" class="btn btn-danger btnCloseModal" value="Close" />
+        </div>
+    </div>
+</form>
+
+
+

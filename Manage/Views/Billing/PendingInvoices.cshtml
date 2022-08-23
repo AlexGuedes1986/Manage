@@ -1,0 +1,17 @@
+﻿<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-file-alt"></i> Pending Invoices</h2>
+</div>
+
+<form action="@Url.Action("PendingInvoices")" method="post">
+    <div class="row">
+        <div class="offset-1">
+            @await Component.InvokeAsync("ReportFilter")
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="offset-1">
+            <input type="submit" value="Generate Report" class="btn btn-success marginTop10" />
+        </div>
+    </div>
+</form>

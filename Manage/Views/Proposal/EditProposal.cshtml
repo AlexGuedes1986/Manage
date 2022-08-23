@@ -1,0 +1,196 @@
+﻿@model ProposalViewModel
+
+@{
+    ViewData["Title"] = "Edit Proposal";
+}
+
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-file-alt"></i> PROPOSALS</h2>
+</div>
+
+<div style="padding-bottom:50px;padding-top:10px;">
+    <a href="@Url.Action("Index")" class="btn btn-primary inlineBlock ml-3 floatRight">Go To Proposals</a>
+    <a href="@Url.Action("ViewProposal", new { id = Model.Id })" class="btn btn-primary inlineBlock ml-3 floatRight">Go To Pdf Generation Page</a>
+</div>
+<div class="row">
+    <div class="col-md-10">
+        <div class="pad">
+            @using (Html.BeginForm("EditProposal", "Proposal", FormMethod.Post))
+            {
+                <div>
+                    <h4>Edit Proposal: @Model.ContractNumber</h4>
+                </div>
+                <div class="row col-md-6">
+                    <label for="inpContact" class="control-label">Client</label>
+                    <input type="text" class="form-control" id="inpContact" data-url-autocompletecontact="@Url.Action("AutocompleteContact")"
+                           value="@($"{Model.Contact.FirstName} {Model.Contact.LastName}")" />
+                    <span asp-validation-for="ContactId" class="text-danger"></span>
+                    <div class="divContactData">
+                        <p class="pnomargin"><span class="bold">Contact name: </span> @(Model.Contact.FirstName + " " + Model.Contact.LastName) </p><p class="pnomargin">
+                            <span class="bold"> Address: </span> @($"{Model.Contact.Company.AddressLine1}, {Model.Contact.Company.City}, {Model.Contact.Company.State}" +
+$", {Model.Contact.Company.ZipCode}")
+                        </p><p><span class="bold">Company Name: </span> @Model.Contact.Company.Name </p>
+                        <button type="button" id="btnResetClient" class="btn btn-primary">Reset Client</button>
+                    </div>
+                    <input type="hidden" id="contactidLoaded" name="contactid" value="@Model.ContactId" />
+                </div>
+                <div class="row col-md-6">
+                    <label asp-for="ProjectName" class="control-label"></label>
+                    <input asp-for="ProjectName" class="form-control" />
+                    <span asp-validation-for="ProjectName" class="text-danger"></span>
+                </div>
+                <div class="row col-md-6">
+                    <label asp-for="ProjectCounty" class="control-label"></label>
+                    <input asp-for="ProjectCounty" class="form-control" />
+                    <span asp-validation-for="ProjectCounty" class="text-danger"></span>
+                </div>
+                <div class="row col-md-6">
+                    @Html.LabelFor(m => m.BTCOffice)
+                    @Html.DropDownListFor(m => m.BTCOffice, Model.BTCOfficesList, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.BTCOffice, "", new { @class = "text-danger field-validation-error" })
+                </div>
+
+
+                <div class="form-group mt-4">
+                    <h4>Project Managers</h4>
+                    @{
+                        @*Displaying checkboxes in 2 columns*@
+                        for (int i = 0; i < Model.ProjectManagersCheckBox.Count(); i += 2)
+                        {
+                            if (i == Model.ProjectManagersCheckBox.Count() - 1)
+                            {
+                                <div class="row">
+                                    <div class="col">
+                                        @Html.CheckBoxFor(m => m.ProjectManagersCheckBox[i].IsSelected, new { id = Model.ProjectManagersCheckBox[i].Name })
+                                        <label class="lblRole" for="@Model.ProjectManagersCheckBox[i].Name">
+                                            @($"{Model.ProjectManagersCheckBox[i].Name} {Model.ProjectManagersCheckBox[i].LastName}")
+                                        </label>
+                                        @Html.HiddenFor(m => m.ProjectManagersCheckBox[i].Id)
+                                        @Html.HiddenFor(m => m.ProjectManagersCheckBox[i].Name)
+                                        @Html.HiddenFor(m => m.ProjectManagersCheckBox[i].LastName)
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="row">
+                                    <div class="col">
+                                        @Html.CheckBoxFor(m => m.ProjectManagersCheckBox[i].IsSelected, new { id = Model.ProjectManagersCheckBox[i].Name })
+                                        <label class="lblRole" for="@Model.ProjectManagersCheckBox[i].Name">
+                                            @($"{Model.ProjectManagersCheckBox[i].Name} {Model.ProjectManagersCheckBox[i].LastName}")
+                                        </label>
+                                        @Html.HiddenFor(m => m.ProjectManagersCheckBox[i].Id)
+                                        @Html.HiddenFor(m => m.ProjectManagersCheckBox[i].Name)
+                                        @Html.HiddenFor(m => m.ProjectManagersCheckBox[i].LastName)
+                                    </div>
+                                    <div class="col">
+                                        @Html.CheckBoxFor(m => m.ProjectManagersCheckBox[i + 1].IsSelected, new { id = Model.ProjectManagersCheckBox[i + 1].Name })
+                                        <label class="lblRole" for="@Model.ProjectManagersCheckBox[i + 1].Name">
+                                            @($"{Model.ProjectManagersCheckBox[i + 1].Name} {Model.ProjectManagersCheckBox[i + 1].LastName}")
+                                        </label>
+                                        @Html.HiddenFor(m => m.ProjectManagersCheckBox[i + 1].Id)
+                                        @Html.HiddenFor(m => m.ProjectManagersCheckBox[i + 1].Name)
+                                        @Html.HiddenFor(m => m.ProjectManagersCheckBox[i + 1].LastName)
+                                    </div>
+                                </div>
+                            }
+
+                        }
+                        <span asp-validation-for="ProjectManagersCheckBox" class="text-danger"></span>
+                    }
+                </div>
+
+                <div class="row col-md-6 divAuthor">
+                    <label asp-for="AuthorId"></label>
+                    <input type="text" class="form-control inlineBlock" id="inpAuthor"
+                           data-url-autocompleteauthor="@Url.Action("AutocompleteAuthor")" value="@Model.AuthorFormattedName" />
+                    <input type="hidden" id="hidAuthorId" name="AuthorId" value="@Model.AuthorId" />
+                    @Html.ValidationMessageFor(m => m.AuthorId, "", new { @class = "text-danger field-validation-error" })
+                </div>
+
+                <h4 class="marginTop20">Team members</h4>
+                <div style="display:flex;">
+                    <div class="row col-md-6 divTeamMembersContainer marginBottom15">
+                        <input type="text" class="form-control" id="inpTeamMember" data-url-autocompletecontact="@Url.Action("AutocompleteTeamMember")" placeholder="Please type Team Member Name" />
+                        <span id="spanTeamMemberValidation" class="text-danger"></span>
+                    </div>
+                    @{
+                        if (Model.ProposalTeamMember?.Count > 0)
+                        {
+                            <div class="divTeamMember">
+                                @{
+                                    for (int i = 0; i < Model.ProposalTeamMember.Count; i++)
+                                    {
+                                        <p class="pMargin">
+                                            @($"{Model.ProposalTeamMember[i].FormattedName}")<i class="fa fa-times faTimesMargin removeTeamMember"></i>
+                                            <input type="hidden" class="teamMemberItem" name="ProposalTeamMember[@i].ApplicationUserId" value="@Model.ProposalTeamMember[i].ApplicationUserId" />
+                                            <input type="hidden" class="teamMemberFormattedName" name="ProposalTeamMember[@i].FormattedName" value="@Model.ProposalTeamMember[i].FormattedName" />
+                                            <input type="hidden" name="ProposalTeamMember[@i].ProposalId" value="@Model.Id" />
+                                        </p>
+                                    }
+                                }
+                            </div>
+
+                        }
+                        else
+                        {
+                            <div class="divTeamMember displayNone">
+                            </div>
+                        }
+                    }
+
+                </div>
+
+                <div>
+                    <label class="fontsize16">Second paragraph for cover letter: </label>
+                    <label class="switch marginLeft10">
+                        @{
+                            if (!String.IsNullOrEmpty(Model.SecondParagraphCoverLetter))
+                            {
+                                <input type="checkbox" class="checkboxSwitch" checked>
+                            }
+                            else
+                            {
+                                <input type="checkbox" class="checkboxSwitch">
+                            }
+                        }
+                        <span class="slider round"></span>
+                    </label>
+                    <br />
+                    @{
+                        if (!String.IsNullOrEmpty(Model.SecondParagraphCoverLetter))
+                        {
+                            <textarea name="SecondParagraphCoverLetter" onkeyup="textAreaAdjust(this)" style="overflow:hidden" class="txtAreaSecondParagraph textAreaCoverLetter">@Model.SecondParagraphCoverLetter</textarea>
+                        }
+                        else
+                        {
+                            <textarea name="SecondParagraphCoverLetter" onkeyup="textAreaAdjust(this)" style="overflow:hidden" class="txtAreaSecondParagraph displayNone textAreaCoverLetter"></textarea>
+                        }
+                    }
+
+                </div>
+                <input type="hidden" name="ImageUrl" value="@Model.ImageUrl" />
+                <input type="submit" name="returnUrl" class="btn btn-primary" value="Update" />
+                if (Model.TaskExtension?.Count() > 0)
+                {
+                <input type="submit" name="returnUrl" class="btn btn-primary" value="Edit Tasks" />
+                }
+                <input type="submit" name="returnUrl" class="btn btn-primary" value="Add Tasks/Image" />
+                <a href="@Url.Action("Index")" class="btn btn-default">Cancel</a>
+                <input type="hidden" id="inpTaskFields" data-url="@Url.Action("TaskFields")" />
+                <input type="hidden" id="inpUpdateMessage" value="@ViewBag.UpdateMessage" />
+                <input type="hidden" name="ContractNumber" value="@Model.ContractNumber" />
+                }
+
+            </div>
+    </div>
+</div>
+<script>
+    $(function () {
+          $('.txtAreaSecondParagraph').height($(".txtAreaSecondParagraph")[0].scrollHeight);
+    })
+</script>
+
+
+
+

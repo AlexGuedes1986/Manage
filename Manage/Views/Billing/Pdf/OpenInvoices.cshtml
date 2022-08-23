@@ -1,0 +1,80 @@
+﻿@model Dictionary<string, List<OpenInvoice>>
+@{ Layout = null;
+    // Display string representations of numbers for en-us culture
+    CultureInfo ci = new CultureInfo("en-us");
+}
+
+<table class="tbReport">
+    <tr>
+        <th>Type</th>
+        <th>Date</th>
+        <th>Num</th>
+        <th>P.O.#</th>
+        <th>Terms</th>
+        <th>Due Date</th>
+        <th>Company Name</th>
+        <th>Aging</th>
+        <th>Open Balance</th>
+    </tr>
+    @foreach (var group in Model)
+    {
+        decimal totalOpenBalancePerProject = 0;
+        <tr class="bold"><td>@group.Key</td></tr>
+        var invoicesByKey = group.Value.GroupBy(i => i.ContractNumber);
+        @foreach (var invoiceGroup in invoicesByKey)
+        {
+            <tr class="bold"><td>@invoiceGroup.Key</td></tr>
+            foreach (var invoice in invoiceGroup)
+            {
+                <tr>
+                    <td>@invoice.Type</td>
+                    <td>@invoice.Date.ToString("MM/dd/yyyy")</td>
+                    <td>@invoice.Num</td>
+                    <td>@invoice.PONumber</td>
+                    <td>@invoice.Terms</td>
+                    <td>@invoice.DueDate.ToString("MM/dd/yyyy")</td>
+                    <td>@invoice.CompanyName</td>
+                    @{
+                        if (invoice.Aging < 0)
+                        {
+                            <td class="spnValue" style="width:90px;"></td>
+                        }
+                        else
+                        {
+                            <td class="spnValue" style="width:90px;">@invoice.Aging</td>
+                        }
+                    }
+                    <td>@invoice.Balance.ToString("C", ci)</td>
+                </tr>
+                totalOpenBalancePerProject += invoice.Balance;
+            }
+            <tr><td>Total @invoiceGroup.Key</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>@invoiceGroup.Sum(i => i.Balance).ToString("C", ci)</td></tr>
+        }
+<tr><td>Total @group.Key</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>@totalOpenBalancePerProject.ToString("C", ci)</td></tr>
+    }
+</table>
+
+<style>
+    .bold {
+        font-weight: bold;
+    }
+
+    th {
+        border-bottom: solid black;
+        border-width: 1px;
+        padding: 0 15px 0 15px;
+    }
+
+    table {
+        border-spacing: 10px;
+        border-collapse: separate;
+        width: 900px;
+    }
+
+    .tbReport td {
+        text-align: center;
+        margin-left: 200px;
+    }
+</style>
+
+

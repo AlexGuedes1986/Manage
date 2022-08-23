@@ -1,0 +1,29 @@
+﻿@model IEnumerable<TaskBioTech>
+@{ 
+    Layout = "_LayoutNoAuth";
+}
+@{
+    if (Model.Count() > 0)
+    {
+        <table class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Task Code</th>
+                    <th scope="col">Task Title</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    foreach (var task in Model)
+                    {
+                        <tr>
+                            <td>@String.Format("("+task.TaskCodeParent.ToString("00") + "-" + task.TaskCodeSub.ToString("00") + ")")</td>
+                            <td>@task.TaskTitle</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    }
+
+}

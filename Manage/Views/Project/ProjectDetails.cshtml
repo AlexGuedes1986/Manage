@@ -1,0 +1,268 @@
+﻿@model ProposalViewModel
+@{
+    System.Text.StringBuilder projectManagersSeparatedByComma = new System.Text.StringBuilder();
+    for (int i = 0; i < Model.ProjectManagers.Count; i++)
+    {
+        if (i != Model.ProjectManagers.Count - 1)
+        {
+            projectManagersSeparatedByComma.Append($"{Model.ProjectManagers[i].FirstName} {Model.ProjectManagers[i].LastName}, ");
+        }
+        else
+        {
+            projectManagersSeparatedByComma.Append($"{Model.ProjectManagers[i].FirstName} {Model.ProjectManagers[i].LastName}");
+        }
+
+    }
+}
+
+<link href="https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.css" rel="stylesheet">
+<link href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css" rel="stylesheet">
+
+<script src="https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/resizable/bootstrap-table-resizable.min.js"></script>
+<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+
+@*<link href=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css rel=stylesheet>*@
+<link href=https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/css/dataTables.bootstrap4.min.css rel=stylesheet>
+
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-folder-open"></i> PROJECTS</h2>
+</div>
+
+<div class="col-12 projDetails">
+    <div class="paddingTop5">
+        <h2>Project Details</h2>
+    </div>
+    <div class="row">
+        <label class="col-md-2">Project #:</label>
+        @{
+            if (Model.CanActive)
+            {
+                <input type="text" value="@Model.ProjectNumber" class="form-control projNumberEditable" />
+                <input type="button" class="btn btn-primary" value="Update" id="btnUpdatePN" data-project-id="@Model.Id" data-url="@Url.Action("UpdateProjectNumber")" />
+                <span class="marginLeft10" id="spnMessage"></span>
+            }
+            else
+            {
+                <span class="col-md-6">@Model.ProjectNumber</span>
+            }
+        }
+
+    </div>
+    <div class="row">
+        <label class="col-md-2">Contract #:</label>
+        <span class="col-md-6">@Model.ContractNumber</span>
+    </div>
+    <div class="row">
+        <label class="col-md-2">Contract Date:</label>
+        <span class="col-md-6">@Model.ContractDate.Value.ToString("MM/dd/yyyy")</span>
+    </div>
+    <div class="row">
+        <label class="col-md-2">Project Name:</label>
+        <span class="col-md-6">@Model.ProjectName</span>
+    </div>
+    <div class="row">
+        <label class="col-md-2">Client:</label>
+        <span class="col-md-6">@Model.Contact.Company.Name</span>
+    </div>
+    <div class="row">
+        <label class="col-md-2">Contact:</label>
+        <span class="col-md-6"><a href="@Url.Action("ContactDetails", "Contact", new { Id = Model.Contact.Id})">@($"{Model.Contact.FirstName} {Model.Contact.LastName}")</a></span>
+    </div>
+
+    <div class="row verticalMargin">
+        <label class="col-md-2">Project Status:</label>
+        <select id="projectStatus" asp-for="ProjectStatus" asp-items="@Model.ProjectStatuses" class="form-control col-md-2">
+        </select>
+        <input type="button" class="btn btn-primary" value="Update" id="btnUpdateProjStatus" data-project-id="@Model.Id" data-url="@Url.Action("UpdateProjectStatus")" />
+    </div>
+    <div class="row verticalMargin">
+        <label class="col-md-2">Contract Status:</label>
+        <select id="contractStatus" asp-for="ContractStatus" asp-items="@Model.ContractStatuses" class="form-control col-md-2">
+        </select>
+        <input type="button" class="btn btn-primary" value="Update Contract Number @Model.ContractNumber" id="btnUpdateContractStatus" data-project-id="@Model.Id" data-url="@Url.Action("UpdateContractStatus")" />
+        <div class="marginLeft10">
+            <input type="button" class="btn btn-primary" value="Update All Contracts under this Project Number" id="btnUpdateAllContractUnderSameProjNumber" data-project-id="@Model.Id" data-url="@Url.Action("UpdateContractStatusUnderSameProjectNumber")" />
+        </div>
+    </div>
+    <p id="pUpdateAllContractsMessage">Please select a valid Contract Status</p>
+    <div class="row">
+        <label class="col-md-2">Contract:</label>
+        <a class="inlineBlock paddinglr15 " target="_blank" asp-controller="Proposal" asp-action="PreviewPdf" asp-route-id="@Model.Id">View Contract PDF</a>
+    </div>
+    @{
+        if (projectManagersSeparatedByComma.Length > 0)
+        {
+            <div class="row">
+                <label class="col-md-2">Project Managers:</label>
+                <span class="col-md-6">@projectManagersSeparatedByComma</span>
+            </div>
+        }
+    }
+    <div class="pTaskList">
+        <div>
+            <h2>Project Task List</h2>
+        </div>
+    </div>
+    <div class="col-md-12 divProjectTaskList">
+
+
+        <table class="table-striped table-bordered table-hover tblTask" id="tableProjectDetails"
+               data-resizable="true">
+            <thead>
+                <tr class="bold">
+                    <th>Contract #</th>
+                    <th>Project Name</th>
+                    <th>Task #</th>
+                    <th>Task Name</th>
+                    <th>Cost</th>
+                    <th>Rate</th>
+                    <th class="no-sort">Status</th>
+                    <th class="no-sort">Due Date</th>
+                    <th class="no-sort">Contract Status</th>
+                    <th class="no-sort">Add to Timesheet</th>
+                    <th class="no-sort">Assigned to</th>
+                    <th class="no-sort">View Contract Pdf</th>
+                    @{
+                        if (Model.CanManage)
+                        {
+                            <th class="no-sort">Unassign</th>
+                        }
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    foreach (var te in Model.TaskExtensionVM.OrderBy(te => te.TaskCodeParent).ThenBy(te => te.TaskCodeSub))
+                    {
+                        <tr>
+                            <td>@(te.Proposal.ContractNumber)</td>
+                            <td>@(te.Proposal.ProjectName)</td>
+                            <td>@($"{te.TaskCodeParent.ToString("00")}-{te.TaskCodeSub.ToString("00")}")</td>
+                            <td>@te.TaskTitle</td>
+                            <td>
+                                @{
+                                    if (String.Equals(te.FeeStructure, "Hourly Not To Exceed"))
+                                    {
+                                        @te.NotToExceedTotalPrice
+                                    }
+                                    if (String.Equals(te.FeeStructure, "Per Event"))
+                                    {
+                                        @te.InstancePrice
+                                    }
+                                    if (String.Equals(te.FeeStructure, "Flat Fee"))
+                                    {
+                                        @te.TotalPrice
+                                    }
+                                    if (String.Equals(te.FeeStructure, "Recurring"))
+                                    {
+                                        @te.TotalPrice
+                                    }
+                                }
+                            </td>
+                            <td>@te.FeeStructure</td>
+                            <td class="tdStatus">@te.Status</td>
+                            @{
+                                if (te.DueDate != null)
+                                {
+                                    <td class="tdDueDate">@te.DueDate.Value.ToString("MM/dd/yyyy")</td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+                                <td>@Model.ContractStatus</td>
+
+                                if (Model.CanManage)
+                                {
+                                    if (te.AlreadyAddedToTimesheet)
+                                    {
+                                        //Putting two links always and depending of AlreadyAddedToTimesheet property display or hide, then using Jquery when
+                                        //a task is unassigned is required only to toggle the display css property between them
+                                        <td class="editOrManage">
+                                            <a class="aEdit" href="@Url.Action("ManageTask", new { taskExtensionId = @te.Id, editOrCreate = "edit", assignedEmployeeId = te.AssignedEmployeeId
+                                            , projectNumber = Model.ProjectNumber })">Edit</a>
+                                            <a class="aManage displayNone" href="@Url.Action("ManageTask", new { taskExtensionId = @te.Id, editOrCreate = "create"
+                                             , projectNumber = Model.ProjectNumber })">Manage</a>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td class="editOrManage">
+                                            <a class="aEdit displayNone" href="@Url.Action("ManageTask", new { taskExtensionId = @te.Id, editOrCreate = "edit"
+                                            ,assignedEmployeeId = te.AssignedEmployeeId, projectNumber = Model.ProjectNumber })">Edit</a>
+                                            <a class="aManage" href="@Url.Action("ManageTask", new { taskExtensionId = @te.Id, editOrCreate = "create"
+                                             , projectNumber = Model.ProjectNumber })">Manage</a>
+                                        </td>
+                                    }
+
+                                }
+
+                                else
+                                {
+                                    if (!te.AlreadyAddedToTimesheet)
+                                    {
+                                        <td>
+                                            <a class="aAddTaskRegular" href="#" data-url-add-task-reg-user="@Url.Action("AddTaskToTimesheetRegularUser")"
+                                               data-taskext-id="@te.Id">+ Timesheet</a>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                }
+                                <td class="tdAssignedTo">@Html.Raw(te.UsersAssignedFormattedName)</td>
+                                <td> <a class="inlineBlock paddinglr15 " target="_blank" asp-controller="Proposal" asp-action="PreviewPdf" asp-route-id="@te.ProposalId">View Contract PDF</a></td>
+                                if (Model.CanManage)
+                                {
+                                    if (te.AlreadyAddedToTimesheet)
+                                    {
+                                        <td>
+                                            <a class="aUnassign" href="#" data-url-unassign="@Url.Action("Unassign")" 
+                                               data-task-id="@te.Id">Unassign</a>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                }
+
+                            }
+
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <p class="pAddToTimesheet textRed"></p>
+
+</div>
+
+<input type="hidden" id="hdnprojectStatus" value="@Model.ProjectStatus" />
+<input type="hidden" id="hdnProjectId" value="@Model.Id" />
+<input type="hidden" id="hdnContractStatusUpdated" value="@TempData["ContractStatusUpdated"]" />
+
+@*<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js></script>*@
+<script src=https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/js/jquery.dataTables.min.js></script>
+@*<script src=https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/js/dataTables.bootstrap4.min.js></script>*@
+
+<script>
+    $(function () {
+        let contractStatusMessage = $('#hdnContractStatusUpdated').val();
+        console.log('contractStatusMessage is ' + contractStatusMessage);
+        $.notify(contractStatusMessage, 'success');
+        $('#tableProjectDetails').DataTable({
+            "paging": false,
+            "searching": false,
+            columnDefs: [{
+                orderable: false,
+                targets: "no-sort"
+            }]
+        });
+    })
+</script>

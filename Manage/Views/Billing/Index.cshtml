@@ -1,0 +1,101 @@
+﻿@{ 
+    var noFilesExport = TempData["ExportToQuickBookNoFiles"];
+}
+<div id="pageHeading">
+    <h2 class="headingAndButton"> <i class="fa fa-money-bill"></i> Invoices</h2>
+</div>
+
+<div class="row rowNoMarginSide" style="width:100%;">
+    <div class="col-md-12">
+        <div class="box">
+            <h4 class="proposalsPendingHeader">Invoicing Batches</h4>
+            <div class="pad">
+                @(Html.Kendo().Grid<InvoiceProjectVM>
+                    ()
+                    .Name("invoiceTable")
+                    .Columns(columns =>
+                    {
+                    columns.Bound(c => c.Id).Title("&nbsp;")
+                    .ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Billing/EditInvoice/${id}'><span class='k-icon k-i-edit'></span>Edit</a>")
+                    .Width(80).Filterable(false);
+                    columns.Bound(c => c.InvoiceDate).Title("Invoice Date").Format("{0:MM/dd/yyyy}").Width(120);
+                    columns.Bound(c => c.InvoiceNumber).Title("Invoice #").Width(100);
+                    columns.Bound(c => c.Status).Title("Status").Width(120);
+                    columns.Bound(c => c.LastPaymentReceivedDate).Title("Last Payment Received").Format("{0:MM/dd/yyyy}").Width(120);
+                    columns.Bound(c => c.CurrentCharges).Title("Total Invoiced").Width(120).Format("{0:c}");
+                    columns.Bound(c => c.PartialPaymentsTotal).Title("Partial Payments Total").Width(120).Format("{0:c}");
+                    columns.Bound(c => c.RemainingAmountToBePaid).Title("Remaining Amount").Width(120).Format("{0:c}");
+                    columns.Bound(c => c.Status).Title("Paid in Full").ClientTemplate("#if(Status=='Paid in Full') {#<input class='checkboxInvoicePaid' type='checkbox' checked value=${id} />#}" +
+                    "else{#<input class='checkboxInvoicePaid' type='checkbox' value=${id} />#}#").Width(90);
+                    columns.Bound(c => c.Finalized).Title("Finalized").ClientTemplate("#if(Finalized==false) {#<input class='checkboxFinalized' type='checkbox' value=${id} />#}" +
+                    "else{#<input class='checkboxFinalized' type='checkbox' checked value=${id} />#}#").Width(90);
+                    columns.Bound(c => c.Id).Title("&nbsp;")
+                    .ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Billing/TimeSheetEntriesByProject/${id}'><span class='k-icon k-i-arrow-right'></span>View</a>")
+                    .Width(80).Filterable(false);
+                    columns.Command(command => { command.Destroy(); }).Width(80);
+                    })
+                    .ToolBar(toolbar =>
+                    {
+                    toolbar.ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/Billing/CreateInvoiceBatch'><span class='k-icon k-i-plus'></span>New Invoice</a>
+                    <a role='button' class='k-button k-button-icontext' href='/Billing/AgingReport'><span class='k-icon k-i-file-pdf'></span>Generate Aging Report</a>
+                    <a role='button' class='k-button k-button-icontext' href='/Billing/OpenInvoices'><span class='k-icon k-i-file-pdf'></span>Open Invoices</a>
+                    <a role='button' class='k-button k-button-icontext' href='/Billing/PendingInvoices'><span class='k-icon k-i-file-pdf'></span>Pending Invoices</a>
+                    <a role='button' class='k-button k-button-icontext' href='/Billing/CustomerBalanceSummary'><span class='k-icon k-i-file-pdf'></span>Customer Balance Summary</a>
+                    <a role='button' class='k-button k-button-icontext' href='/Billing/CustomerOpenBalance'><span class='k-icon k-i-file-pdf'></span>Customer Open Balance</a>
+                    <a role='button' class='k-button k-button-icontext' href='/Billing/JobProgressInvVsEstimates'><span class='k-icon k-i-file-pdf'></span>Progress Invoices vs Estimates</a>
+                    <a role='button' id='aExportQuickbooks' class='k-button k-button-icontext' href='/Billing/ExportInvoicesToQuickBooks'><span class='k-icon k-i-file-pdf'></span>Export to Quickbooks</a>");
+                    }
+                    )
+                    .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+                    .Pageable(p => p.PageSizes(new int[4] { 10, 20, 50, 100 }))
+                    .Sortable()
+                    .Scrollable(s => s.Height(485))
+                    .Resizable(r => r.Columns(true))
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .PageSize(10)
+                    .Events(events => events.Error("error_handler"))
+                    .Model(model => model.Id(p => p.Id))
+                    .Create(update => update.Action("CreateInvoiceBatch", "Billing"))
+                    .Read(read => read.Action("Invoices_Read", "Billing"))
+                    .Update(update => update.Action("EditInvoice", "Billing"))
+                    .Destroy("Invoice_Destroy", "Billing")
+                    )
+                    )
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="hdnUpdateInvoiceStatus" value="@Url.Action("UpdateInvoiceStatus")" />
+<input type="hidden" id="hdnUpdateInvoiceEmailed" value="@Url.Action("UpdateInvoiceEmailed")" />
+<input type="hidden" id="hdnUpdateInvoiceFinalized" value="@Url.Action("UpdateInvoiceFinalized")" />
+<input type="hidden" id="hdnExportQuickBooks" value="@noFilesExport" />
+
+<script>
+
+    $(function () {
+        var grid = $("#invoiceTable").data("kendoGrid");
+        console.log('value of export is : ' + $('#hdnExportQuickBooks').val());
+        console.log('length of export is : ' + $('#hdnExportQuickBooks').val().length);
+        if ($('#hdnExportQuickBooks').val().length > 0) {
+            alert($('#hdnExportQuickBooks').val());
+        }
+    });
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+</script>
