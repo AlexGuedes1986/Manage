@@ -18,6 +18,7 @@ namespace Manage.Models
         public string Email { get; set; }
         public string Comments { get; set; }      
         public string Status { get; set; }
+        public bool Confirmed { get; set; }
         public IEnumerable<Call> Calls { get; set; }
     }
 

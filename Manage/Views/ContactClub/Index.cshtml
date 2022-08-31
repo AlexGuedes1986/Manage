@@ -26,8 +26,9 @@
                 columns.Bound(c => c.Team).Title("Team").Width(120);
                 columns.Bound(c => c.League).Title("League").Width(120);
                 columns.Bound(c => c.Position).Title("Position").Width(80);
-                columns.Bound(c => c.PhoneNumber).Title("Contract Number").Width(120);
+                columns.Bound(c => c.PhoneNumber).Title("PhoneNumber").Width(120);
                 columns.Bound(c => c.Email).Title("Email").Width(120);
+                columns.Bound(c => c.Confirmed).Title("Confirmed").Width(120);
                 columns.Bound(c => c.Comments).Title("Comments").Width(120);
                 columns.Command(command => { command.Destroy(); }).Width(80);
                 columns.Bound(c => c.Id).Title("&nbsp;")
@@ -36,7 +37,7 @@
                 })
                 .ToolBar(toolbar =>
                 {
-                toolbar.ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/ContactClub/Create' ><span class='k-icon k-i-plus'></span>Add Contact Club</a>");
+                toolbar.ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/ContactClub/ContactClubAddEdit' ><span class='k-icon k-i-plus'></span>Add Contact Club</a>");
                 }
                 )
                 .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))

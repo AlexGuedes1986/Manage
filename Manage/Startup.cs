@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Routing;
 using Manage.Services;
+using Manage.Helpers;
 
 namespace BioTech
 {
@@ -134,6 +135,7 @@ namespace BioTech
             services.AddScoped<UserManager<ApplicationUser>>();
             services.AddScoped<ContractNumberService>();
             services.AddScoped<IContactClubService, ContactClubService>();
+            services.AddScoped<RestClient>();
             services.AddKendo();
         }
 
