@@ -21,18 +21,30 @@
                     <select class="form-control" name="Country" data-url="@Url.Action("ContactClubAddEdit")">
                         @foreach (var country in Model.AvailableCountries)
                         {
+                            if (country.Code == Model.Country?.Code)
+                            {
+                                 <option value=@country.Code selected>@country.Name</option>
+                            }
                             <option value=@country.Code>@country.Name</option>
                         }
                     </select>
                     <select class="form-control" name="League">
                         @foreach (var leagueVM in Model.AvailableLeagues)
                         {
+                            if (leagueVM.Id == Convert.ToInt32(Model.League))
+                            {
+                                <option value=@leagueVM.Id selected>@leagueVM.Name</option>
+                            }
                             <option value=@leagueVM.Id>@leagueVM.Name</option>
                         }
                     </select>
                     <select class="form-control" name="Team">
                         @foreach (var teamVM in Model.AvailableTeams)
                         {
+                            if (teamVM.Id == Convert.ToInt32(Model.Team))
+                            {
+                                <option value=@teamVM.Id selected>@teamVM.Name</option>
+                            }
                             <option value=@teamVM.Id>@teamVM.Name</option>
                         }
                     </select>

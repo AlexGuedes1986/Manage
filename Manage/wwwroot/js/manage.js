@@ -7,7 +7,7 @@
             url: url,
             data: { doNotGetCountries: true, codeCountry: countryCode },
             success: function () {
-                console.log('on success');
+                location.reload();
             },
             error: function () {
                 console.log('on error');
@@ -23,7 +23,7 @@
             url: url,
             data: { doNotGetCountries: true, league : league },
             success: function () {
-                console.log('on success');
+                location.reload();
             },
             error: function () {
                 console.log('on error');
@@ -37,9 +37,9 @@
         $.ajax({
             type: 'post',
             url: url,
-            data: { doNotGetCountries: true, league: league },
+            data: { doNotGetCountries: true, teamId: teamId },
             success: function () {
-                console.log('on success');
+                location.reload();            
             },
             error: function () {
                 console.log('on error');

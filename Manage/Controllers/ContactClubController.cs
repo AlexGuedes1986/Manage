@@ -42,9 +42,9 @@ namespace Manage.Controllers
         }
 
         //[HttpGet("ContactClub/ContactClubAddEdit/{getCountries}/{contactClubVM?}/{codeLeague?}", Name = "ContactClubAddEdit")]
-        public IActionResult ContactClubAddEdit(bool doNotGetCountries, string codeCountry = "", string leagueId = "", string teamId = "")
+        public IActionResult ContactClubAddEdit(bool doNotGetCountries, string codeCountry = "", string league = "", string teamId = "")
         {
-            var contactClubVMSession = HttpContext.Session.GetString("contactClubVM");     //HttpContext.Session.get("contactClubVM", JsonConvert.DeserializeObject<ContactClubVM>(contactClubVM));
+            var contactClubVMSession = HttpContext.Session.GetString("contactClubVM");
             ContactClubVM contactClubVM = new ContactClubVM();
 
             if (!String.IsNullOrEmpty(contactClubVMSession))
@@ -66,18 +66,55 @@ namespace Manage.Controllers
                 var responseLeagues = _restClient.MakeRequest("/leagues?", $"code={codeCountry}");
                 var leaguesJObject = JObject.Parse(responseLeagues);
                 var leaguesJsonResponse = leaguesJObject["response"].ToString();
+                List<LeagueVM> leagues = new List<LeagueVM>();   
                 var leaguesJson = JArray.Parse(leaguesJsonResponse);
-                foreach (var league in leaguesJson)
+                foreach (var leagueJson in leaguesJson)
                 {
-                    var leagueJObject = JObject.Parse(league.ToString());
+                    var leagueJObject = JObject.Parse(leagueJson.ToString());
                     var leagueJToken = leagueJObject["league"];
                     var currentLeague = JsonConvert.DeserializeObject<LeagueVM>(leagueJToken.ToString());
-                    contactClubVM.AvailableLeagues.Add(new LeagueVM
+                    leagues.Add(new LeagueVM
                     {
                         Id = currentLeague.Id,
                         Name = currentLeague.Name
                     });
                 }
+                contactClubVM.AvailableLeagues = leagues; 
+                contactClubVM.Country.Code = codeCountry;
+            }
+            if (!String.IsNullOrEmpty(league))
+            {
+                var season = DateTime.Now.Year;
+                var responseTeams = _restClient.MakeRequest("/teams?", $"league={league}&season={season}");
+                var teamsJObject = JObject.Parse(responseTeams);
+                var teamsJsonResponse = teamsJObject["response"].ToString();
+                var teamsJson = JArray.Parse(teamsJsonResponse);
+                List<TeamVM> teams = new List<TeamVM>();
+                foreach (var team in teamsJson)
+                {
+                    var teamJObject = JObject.Parse(team.ToString());
+                    var teamJToken = teamJObject["team"];
+                    var currentTeam = JsonConvert.DeserializeObject<TeamVM>(teamJToken.ToString());
+                    teams.Add(new TeamVM
+                    {
+                        Id = currentTeam.Id,
+                        Name = currentTeam.Name
+                    });
+                }
+                contactClubVM.AvailableTeams = teams;
+                contactClubVM.League = league;
+            }
+            if (!String.IsNullOrEmpty(teamId))
+            {
+                //var responseTeam = _restClient.MakeRequest("/teams?", $"id={teamId}");
+                //var teamJObject = JObject.Parse(responseTeam);
+                //var teamJsonResponse = teamJObject["response"].ToString();
+                //var teamJson = JArray.Parse(teamJsonResponse);
+
+                //var teamJsonJObject = JObject.Parse(teamJson.ToString());
+                //var teamJsonJToken = teamJsonJObject["team"];
+                //var currentTeam = JsonConvert.DeserializeObject<TeamVM>(teamJsonJToken.ToString());
+                contactClubVM.Team = teamId;                
             }
             HttpContext.Session.SetString("contactClubVM", JsonConvert.SerializeObject(contactClubVM));
             return View(contactClubVM);        

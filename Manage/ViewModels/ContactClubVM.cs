@@ -13,8 +13,8 @@ namespace Manage.ViewModels
         public int Id { get; set; }
         public string Name { get; set; }
         public List<CountryVM> AvailableCountries { get; set; } = new List<CountryVM>();
-        public string Country { get; set; }
-        public List<LeagueVM> AvailableTeams { get; set; } = new List<LeagueVM>();
+        public CountryVM Country { get; set; } = new CountryVM();
+        public List<TeamVM> AvailableTeams { get; set; } = new List<TeamVM>();
         public string Team { get; set; }
         public List<LeagueVM> AvailableLeagues { get; set; } = new List<LeagueVM>();     
         public string League { get; set; }
