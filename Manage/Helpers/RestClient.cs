@@ -32,9 +32,9 @@ namespace Manage.Helpers
             
         }     
 
-        public string MakeRequest(string parameters)
+        public string MakeRequest(string whatToGet, string parameters = "")
         {
-            var request = (HttpWebRequest)WebRequest.Create(EndPoint + parameters);
+            var request = (HttpWebRequest)WebRequest.Create($"{EndPoint}{whatToGet}{parameters}");
 
             request.Method = Method.ToString();
             request.ContentLength = 0;

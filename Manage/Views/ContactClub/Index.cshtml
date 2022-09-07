@@ -37,7 +37,7 @@
                 })
                 .ToolBar(toolbar =>
                 {
-                toolbar.ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/ContactClub/ContactClubAddEdit' ><span class='k-icon k-i-plus'></span>Add Contact Club</a>");
+                toolbar.ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/ContactClub/ContactClubAddEdit/true' ><span class='k-icon k-i-plus'></span>Add Contact Club</a>");
                 }
                 )
                 .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))

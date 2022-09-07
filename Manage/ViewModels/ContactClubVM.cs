@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -11,34 +12,16 @@ namespace Manage.ViewModels
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<string> AvailableCountries { get; set; }
+        public List<CountryVM> AvailableCountries { get; set; } = new List<CountryVM>();
         public string Country { get; set; }
+        public List<LeagueVM> AvailableTeams { get; set; } = new List<LeagueVM>();
         public string Team { get; set; }
+        public List<LeagueVM> AvailableLeagues { get; set; } = new List<LeagueVM>();     
         public string League { get; set; }
         public string Position { get; set; }
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public string Comments { get; set; }
-        public string Status { get; set; }
-        public ContactClubVM()
-        {
-            AvailableCountries = GetCountries();
-        }
-
-        public List<string> GetCountries()
-        { 
-            List<string> cultureList = new List<string>();
-            CultureInfo[] getCultureInfo = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
-            foreach (CultureInfo getCulture in getCultureInfo)
-            {
-                RegionInfo getRegionInfo = new RegionInfo(getCulture.LCID);
-                if (!cultureList.Contains(getRegionInfo.EnglishName))
-                {
-                    cultureList.Add(getRegionInfo.EnglishName);
-                }
-            }
-            cultureList.Sort();
-            return cultureList;
-        }
+        public string Status { get; set; }       
     }
 }

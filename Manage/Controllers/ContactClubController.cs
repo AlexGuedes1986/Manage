@@ -11,6 +11,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Manage.Helpers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace Manage.Controllers
 {
@@ -38,10 +41,45 @@ namespace Manage.Controllers
             return Json(obj);
         }
 
-        public IActionResult ContactClubAddEdit()
-        {                 
-            var countries = _restClient.MakeRequest("/countries");
+        //[HttpGet("ContactClub/ContactClubAddEdit/{getCountries}/{contactClubVM?}/{codeLeague?}", Name = "ContactClubAddEdit")]
+        public IActionResult ContactClubAddEdit(bool doNotGetCountries, string codeCountry = "", string leagueId = "", string teamId = "")
+        {
+            var contactClubVMSession = HttpContext.Session.GetString("contactClubVM");     //HttpContext.Session.get("contactClubVM", JsonConvert.DeserializeObject<ContactClubVM>(contactClubVM));
             ContactClubVM contactClubVM = new ContactClubVM();
+
+            if (!String.IsNullOrEmpty(contactClubVMSession))
+            {
+                contactClubVM = JsonConvert.DeserializeObject<ContactClubVM>(contactClubVMSession);
+            }
+
+            if (!doNotGetCountries)
+            {
+                var responseCountries = _restClient.MakeRequest("/countries");
+                var countriesJObject = JObject.Parse(responseCountries);
+                var countriesJson = countriesJObject["response"];
+                var countries = JsonConvert.DeserializeObject<List<CountryVM>>(countriesJson.ToString());
+                contactClubVM.AvailableCountries = countries;
+            }
+        
+            if (!String.IsNullOrEmpty(codeCountry))
+            {
+                var responseLeagues = _restClient.MakeRequest("/leagues?", $"code={codeCountry}");
+                var leaguesJObject = JObject.Parse(responseLeagues);
+                var leaguesJsonResponse = leaguesJObject["response"].ToString();
+                var leaguesJson = JArray.Parse(leaguesJsonResponse);
+                foreach (var league in leaguesJson)
+                {
+                    var leagueJObject = JObject.Parse(league.ToString());
+                    var leagueJToken = leagueJObject["league"];
+                    var currentLeague = JsonConvert.DeserializeObject<LeagueVM>(leagueJToken.ToString());
+                    contactClubVM.AvailableLeagues.Add(new LeagueVM
+                    {
+                        Id = currentLeague.Id,
+                        Name = currentLeague.Name
+                    });
+                }
+            }
+            HttpContext.Session.SetString("contactClubVM", JsonConvert.SerializeObject(contactClubVM));
             return View(contactClubVM);        
         }
     }

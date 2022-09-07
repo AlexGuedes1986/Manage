@@ -12,67 +12,31 @@
 </div>
 <div class="row">
     <div class="col-md-10">
-        <div class="pad">
-            @using (Html.BeginForm("ContactAddEdit", "Admin", FormMethod.Post, new { id = "contactClubtEditForm", role = "form" }))
-            {
+        <div class="pad">      
+            <form action='@Url.Action("ContactClubAddEdit", "ContactClub")', method="post" id="contactClubtEditForm" role="form">
+            @*{*@
                 @Html.HiddenFor(m => m.Id)
                 <div class="form-group divContactClub">
                     @Html.LabelFor(m => m.AvailableCountries)
-                    @Html.DropDownListFor(m => m.Country, Model.AvailableCountries, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.AvailableCountries, "", new { @class = "text-danger field-validation-error" })
-                </div>
-                <div class="row rowContact">
-                    <div class="col">
-                        <label asp-for="Name" class="control-label"></label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
-                    <div class="col">
-                        <label asp-for="LastName" class="control-label"></label>
-                        <input asp-for="LastName" class="form-control" />
-                        <span asp-validation-for="LastName" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="row rowContact">
-                    <div class="col">
-                        <label asp-for="Suffix" class="control-label"></label>
-                        <input asp-for="Suffix" class="form-control" />
-                        <span asp-validation-for="Suffix" class="text-danger"></span>
-                    </div>
-                    <div class="col">
-                        <label asp-for="JobTitle" class="control-label"></label>
-                        <input asp-for="JobTitle" class="form-control" />
-                        <span asp-validation-for="JobTitle" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="row rowContact">
-                    <div class="col">
-                        <label asp-for="MobilePhone" class="control-label"></label>
-                        <input asp-for="MobilePhone" class="form-control" />
-                        <span asp-validation-for="MobilePhone" class="text-danger"></span>
-                    </div>
-                    <div class="col">
-                        <label asp-for="EmailAddress" class="control-label"></label>
-                        <input asp-for="EmailAddress" class="form-control" />
-                        <span asp-validation-for="EmailAddress" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="row rowContact">
-                    <div class="col-md-6">
-                        <label asp-for="BusinessPhone" class="control-label"></label>
-                        <input asp-for="BusinessPhone" class="form-control" />
-                        <span asp-validation-for="BusinessPhone" class="text-danger"></span>
-                    </div>
-                </div>
-
-                <div class="row rowContact">
-                    <label for="Active" class="control-label check-label">
-                        <span class="label-text">Is Active</span>
-                        @Html.CheckBoxFor(m => m.Active)
-                        <span class="checkmark"></span>
-                        <span asp-validation-for="Active" class="text-danger"></span>
-                    </label>
-                </div>
+                    <select class="form-control" name="Country" data-url="@Url.Action("ContactClubAddEdit")">
+                        @foreach (var country in Model.AvailableCountries)
+                        {
+                            <option value=@country.Code>@country.Name</option>
+                        }
+                    </select>
+                    <select class="form-control" name="League">
+                        @foreach (var leagueVM in Model.AvailableLeagues)
+                        {
+                            <option value=@leagueVM.Id>@leagueVM.Name</option>
+                        }
+                    </select>
+                    <select class="form-control" name="Team">
+                        @foreach (var teamVM in Model.AvailableTeams)
+                        {
+                            <option value=@teamVM.Id>@teamVM.Name</option>
+                        }
+                    </select>
+                   
 
 
                 <p>
@@ -80,9 +44,7 @@
                 </p>
                 <input type="submit" class="btn btn-primary" value="Save" />
                 <a href="/Contact" class="btn btn-default">Cancel</a>
-
-            }
-
+             </form>
         </div>
     </div>
 </div>
