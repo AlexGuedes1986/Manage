@@ -12,22 +12,24 @@
 </div>
 <div class="row">
     <div class="col-md-10">
-        <div class="pad">      
-            <form action='@Url.Action("ContactClubAddEdit", "ContactClub")', method="post" id="contactClubtEditForm" role="form">
-            @*{*@
+        <div class="pad">
+            <form action='@Url.Action("ContactClubAddEdit", "ContactClub")' , method="post" id="contactClubtEditForm" role="form">
                 @Html.HiddenFor(m => m.Id)
-                <div class="form-group divContactClub">
-                    @Html.LabelFor(m => m.AvailableCountries)
+                <div class="row col-md-6 form-group divContactClub">                  
+                    <label asp-for="Country" class="control-label"></label>
                     <select class="form-control" name="Country" data-url="@Url.Action("ContactClubAddEdit")">
                         @foreach (var country in Model.AvailableCountries)
                         {
-                            if (country.Code == Model.Country?.Code)
+                            if (country.Code == Model.CountryCode)
                             {
-                                 <option value=@country.Code selected>@country.Name</option>
+                                <option value=@country.Code selected>@country.Name</option>
                             }
                             <option value=@country.Code>@country.Name</option>
                         }
                     </select>
+                </div>
+                <div class="row col-md-6 form-group divContactClub">
+                    <label asp-for="League" class="control-label"></label>
                     <select class="form-control" name="League">
                         @foreach (var leagueVM in Model.AvailableLeagues)
                         {
@@ -38,6 +40,9 @@
                             <option value=@leagueVM.Id>@leagueVM.Name</option>
                         }
                     </select>
+                </div>
+                <div class="row col-md-6 form-group divContactClub">
+                    <label asp-for="Team" class="control-label"></label>
                     <select class="form-control" name="Team">
                         @foreach (var teamVM in Model.AvailableTeams)
                         {
@@ -48,15 +53,34 @@
                             <option value=@teamVM.Id>@teamVM.Name</option>
                         }
                     </select>
-                   
-
-
-                <p>
-                    @Html.ValidationSummary(false, "", new { @class = "text-danger field-validation-error" })
-                </p>
+                </div>
+                    <div class="row col-md-6 form-group divContactClub">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input class="form-control" type="text" name="Name" />
+                </div>
+                <div class="row col-md-6 form-group divContactClub">
+                    <label asp-for="Position" class="control-label"></label>
+                    <input class="form-control" type="text" name="Position" />
+                </div>
+                <div class="row col-md-6 form-group divContactClub">
+                    <label asp-for="PhoneNumber" class="control-label"></label>
+                    <input class="form-control" type="tel" name="PhoneNumber" />
+                </div>
+                <div class="row col-md-6 form-group divContactClub">
+                    <label asp-for="Email" class="control-label"></label>
+                    <input class="form-control" type="email" name="Email" />
+                </div>
+                <div class="row col-md-6 form-group divContactClub">
+                    <label asp-for="Comments" class="control-label"></label>
+                    <textarea class="form-control" name="Comments"></textarea>
+                </div>
+                <div class="row col-md-6 form-group divContactClub">
+                    <label asp-for="IsAgent" class="control-label"></label>
+                    <input type="checkbox" value="true" name="IsAgent" />
+                </div>       
                 <input type="submit" class="btn btn-primary" value="Save" />
                 <a href="/Contact" class="btn btn-default">Cancel</a>
-             </form>
+            </form>
         </div>
     </div>
 </div>

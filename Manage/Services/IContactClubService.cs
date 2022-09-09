@@ -10,5 +10,6 @@ namespace Manage.Services
     public interface IContactClubService
     {
         IEnumerable<ContactClub> GetAll();
+        void Create(ContactClub contactClub);
     }
 }

@@ -19,5 +19,11 @@ namespace Manage.Services
         {
             return _db.ContactClub;          
         }
+        public void Create(ContactClub contactClub)
+        {
+            _db.ContactClub.Add(contactClub);
+            _db.SaveChanges();
+        }
+
     }
 }

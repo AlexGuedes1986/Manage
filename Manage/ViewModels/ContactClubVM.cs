@@ -13,7 +13,8 @@ namespace Manage.ViewModels
         public int Id { get; set; }
         public string Name { get; set; }
         public List<CountryVM> AvailableCountries { get; set; } = new List<CountryVM>();
-        public CountryVM Country { get; set; } = new CountryVM();
+        public string Country { get; set; }
+        public string CountryCode { get; set; }
         public List<TeamVM> AvailableTeams { get; set; } = new List<TeamVM>();
         public string Team { get; set; }
         public List<LeagueVM> AvailableLeagues { get; set; } = new List<LeagueVM>();     
@@ -22,6 +23,7 @@ namespace Manage.ViewModels
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public string Comments { get; set; }
-        public string Status { get; set; }       
+        public string Status { get; set; }
+        public bool IsAgent { get; set; }
     }
 }

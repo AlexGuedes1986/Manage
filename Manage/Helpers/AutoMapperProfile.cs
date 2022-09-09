@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using BioTech.Models;
 using BioTech.ViewModels;
+using Manage.Models;
+using Manage.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +33,7 @@ namespace BioTech.Helpers
             CreateMap<Company, CompanyViewModel>();
             CreateMap<InvoiceProject, InvoiceProjectVM>();
             CreateMap<List<InvoiceProject>, List<InvoiceCsv>>();
+            CreateMap<ContactClubVM, ContactClub>();
         }
     }
 }

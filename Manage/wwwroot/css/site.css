@@ -974,3 +974,6 @@ cursor:pointer;
 color:red;
 display:none;
 }
+input[name="IsAgent"] {
+margin-left:10px;
+}

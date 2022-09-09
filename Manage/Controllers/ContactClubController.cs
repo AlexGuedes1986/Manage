@@ -14,6 +14,7 @@ using Manage.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Http;
+using AutoMapper;
 
 namespace Manage.Controllers
 {
@@ -22,11 +23,13 @@ namespace Manage.Controllers
         private readonly IContactClubService _contactClubService;
         private readonly IConfiguration _configuration;
         private readonly RestClient _restClient;
-        public ContactClubController(IContactClubService contactClubService, IConfiguration configuration, RestClient restClient)
+        private readonly IMapper _mapper;
+        public ContactClubController(IContactClubService contactClubService, IConfiguration configuration, RestClient restClient, IMapper mapper)
         {
             _contactClubService = contactClubService;
             _configuration = configuration;
             _restClient = restClient;
+            _mapper = mapper;
         }
 
         public IActionResult Index()
@@ -42,82 +45,54 @@ namespace Manage.Controllers
         }
 
         //[HttpGet("ContactClub/ContactClubAddEdit/{getCountries}/{contactClubVM?}/{codeLeague?}", Name = "ContactClubAddEdit")]
-        public IActionResult ContactClubAddEdit(bool doNotGetCountries, string codeCountry = "", string league = "", string teamId = "")
+        public IActionResult ContactClubAddEdit(bool doNotGetCountries, string codeCountry = "", string league = "", string teamId = "", ContactClubVM contactClubVMParameter = null)
         {
-            var contactClubVMSession = HttpContext.Session.GetString("contactClubVM");
             ContactClubVM contactClubVM = new ContactClubVM();
+            var contactClubVMSession = HttpContext.Session.GetString("contactClubVM");
 
             if (!String.IsNullOrEmpty(contactClubVMSession))
             {
                 contactClubVM = JsonConvert.DeserializeObject<ContactClubVM>(contactClubVMSession);
             }
-
-            if (!doNotGetCountries)
+            if (String.IsNullOrEmpty(contactClubVMParameter.Email) && String.IsNullOrEmpty(contactClubVMParameter.PhoneNumber) && String.IsNullOrEmpty(contactClubVMParameter.Name)
+                && String.IsNullOrEmpty(contactClubVMParameter.Position))
             {
-                var responseCountries = _restClient.MakeRequest("/countries");
-                var countriesJObject = JObject.Parse(responseCountries);
-                var countriesJson = countriesJObject["response"];
-                var countries = JsonConvert.DeserializeObject<List<CountryVM>>(countriesJson.ToString());
-                contactClubVM.AvailableCountries = countries;
-            }
-        
-            if (!String.IsNullOrEmpty(codeCountry))
-            {
-                var responseLeagues = _restClient.MakeRequest("/leagues?", $"code={codeCountry}");
-                var leaguesJObject = JObject.Parse(responseLeagues);
-                var leaguesJsonResponse = leaguesJObject["response"].ToString();
-                List<LeagueVM> leagues = new List<LeagueVM>();   
-                var leaguesJson = JArray.Parse(leaguesJsonResponse);
-                foreach (var leagueJson in leaguesJson)
-                {
-                    var leagueJObject = JObject.Parse(leagueJson.ToString());
-                    var leagueJToken = leagueJObject["league"];
-                    var currentLeague = JsonConvert.DeserializeObject<LeagueVM>(leagueJToken.ToString());
-                    leagues.Add(new LeagueVM
-                    {
-                        Id = currentLeague.Id,
-                        Name = currentLeague.Name
-                    });
+                if (!doNotGetCountries)
+                {                  
+                    var countries = ContactClubHelper.GetCountries(_restClient);
+                    contactClubVM.AvailableCountries = countries;
                 }
-                contactClubVM.AvailableLeagues = leagues; 
-                contactClubVM.Country.Code = codeCountry;
-            }
-            if (!String.IsNullOrEmpty(league))
-            {
-                var season = DateTime.Now.Year;
-                var responseTeams = _restClient.MakeRequest("/teams?", $"league={league}&season={season}");
-                var teamsJObject = JObject.Parse(responseTeams);
-                var teamsJsonResponse = teamsJObject["response"].ToString();
-                var teamsJson = JArray.Parse(teamsJsonResponse);
-                List<TeamVM> teams = new List<TeamVM>();
-                foreach (var team in teamsJson)
-                {
-                    var teamJObject = JObject.Parse(team.ToString());
-                    var teamJToken = teamJObject["team"];
-                    var currentTeam = JsonConvert.DeserializeObject<TeamVM>(teamJToken.ToString());
-                    teams.Add(new TeamVM
-                    {
-                        Id = currentTeam.Id,
-                        Name = currentTeam.Name
-                    });
-                }
-                contactClubVM.AvailableTeams = teams;
-                contactClubVM.League = league;
-            }
-            if (!String.IsNullOrEmpty(teamId))
-            {
-                //var responseTeam = _restClient.MakeRequest("/teams?", $"id={teamId}");
-                //var teamJObject = JObject.Parse(responseTeam);
-                //var teamJsonResponse = teamJObject["response"].ToString();
-                //var teamJson = JArray.Parse(teamJsonResponse);
 
-                //var teamJsonJObject = JObject.Parse(teamJson.ToString());
-                //var teamJsonJToken = teamJsonJObject["team"];
-                //var currentTeam = JsonConvert.DeserializeObject<TeamVM>(teamJsonJToken.ToString());
-                contactClubVM.Team = teamId;                
+                if (!String.IsNullOrEmpty(codeCountry))
+                {
+                    var leagues = ContactClubHelper.GetLeagues(_restClient, codeCountry);
+                    contactClubVM.AvailableLeagues = leagues;
+                    contactClubVM.CountryCode = codeCountry;
+                }
+
+                if (!String.IsNullOrEmpty(league))
+                {
+                    var teams = ContactClubHelper.GetTeams(_restClient, league);
+                    contactClubVM.AvailableTeams = teams;
+                    contactClubVM.League = league;
+                }
+
+                if (!String.IsNullOrEmpty(teamId))
+                {
+                    contactClubVM.Team = teamId;
+                }
+
+                HttpContext.Session.SetString("contactClubVM", JsonConvert.SerializeObject(contactClubVM));
+                return View(contactClubVM);
             }
-            HttpContext.Session.SetString("contactClubVM", JsonConvert.SerializeObject(contactClubVM));
-            return View(contactClubVM);        
+            else
+            {
+                var contactClub = _mapper.Map<ContactClub>(contactClubVMParameter);
+                _contactClubService.Create(contactClub);             
+                return View(contactClubVM);
+            }
+
+           
         }
     }
 }
