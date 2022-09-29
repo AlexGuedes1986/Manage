@@ -32,7 +32,11 @@ namespace BioTech.Models
         public virtual DbSet<ContractNumbers> ContractNumbers { get; set; }
         public virtual DbSet<InvoiceTimesheetEntry> InvoiceTimesheetEntry { get; set; }
         public virtual DbSet<PartialPayment> PartialPayment { get; set; }
-        public virtual DbSet<ContactClub> ContactClub { get; set; }         
+        public virtual DbSet<ContactClub> ContactClub { get; set; }
+        public virtual DbSet<Call> Call { get; set; }
+        public virtual DbSet<Country> Country { get; set; }
+        public virtual DbSet<League> League { get; set; }
+        public virtual DbSet<Team> Team { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 //            if (!optionsBuilder.IsConfigured)
@@ -116,7 +120,7 @@ namespace BioTech.Models
                 entity.HasOne(d => d.Contact)
                     .WithMany(p => p.TouchLog)
                     .HasForeignKey(d => d.ContactId);
-            });
+            });        
         }
     }
 }

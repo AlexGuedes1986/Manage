@@ -19,9 +19,18 @@ namespace Manage.Services
         {
             return _db.ContactClub;          
         }
+        public ContactClub GetById(int contactClubId)
+        { 
+            return _db.ContactClub.FirstOrDefault(c => c.Id == contactClubId);
+        }
         public void Create(ContactClub contactClub)
         {
             _db.ContactClub.Add(contactClub);
+            _db.SaveChanges();
+        }
+        public void Update(ContactClub contactClub)
+        {
+            _db.ContactClub.Update(contactClub);
             _db.SaveChanges();
         }
 

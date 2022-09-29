@@ -20,7 +20,7 @@
                     <select class="form-control" name="Country" data-url="@Url.Action("ContactClubAddEdit")">
                         @foreach (var country in Model.AvailableCountries)
                         {
-                            if (country.Code == Model.CountryCode)
+                            if (String.Equals(country.Name, Model.Country, StringComparison.CurrentCultureIgnoreCase))
                             {
                                 <option value=@country.Code selected>@country.Name</option>
                             }
@@ -33,7 +33,7 @@
                     <select class="form-control" name="League">
                         @foreach (var leagueVM in Model.AvailableLeagues)
                         {
-                            if (leagueVM.Id == Convert.ToInt32(Model.League))
+                            if (String.Equals(leagueVM.Name, Model.League, StringComparison.CurrentCultureIgnoreCase))
                             {
                                 <option value=@leagueVM.Id selected>@leagueVM.Name</option>
                             }
@@ -78,9 +78,60 @@
                     <label asp-for="IsAgent" class="control-label"></label>
                     <input type="checkbox" value="true" name="IsAgent" />
                 </div>       
+                <input type="hidden" name="Id" value="@Model.Id" />
                 <input type="submit" class="btn btn-primary" value="Save" />
                 <a href="/Contact" class="btn btn-default">Cancel</a>
             </form>
         </div>
     </div>
 </div>
+
+@if (Model.Id > 0)
+{
+
+    <div class="pad">
+        @(Html.Kendo().Grid<Call>
+        ()
+        .Name("callLogTable")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.Date).Title("Date").Width(120).ClientTemplate(@"#= kendo.toString(Date,'MM/dd/yyyy') #");
+            columns.Bound(c => c.Notes).Title("Notes").Width(250);
+           @* columns.Bound(c => c.Log).Title("Log").Width(120);
+            columns.Bound(c => c.Type).Title("Type").Width(100);*@
+        })
+        .Filterable(f => f.Operators(o => o.ForString(s => s.Clear().Contains("Contains").StartsWith("Starts with"))))
+        .Sortable()
+        .Scrollable(s => s.Height(485))
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(10)
+        .Events(events => events.Error("error_handler"))
+        .Model(model => model.Id(p => p.Id))
+        .Read(read => read.Action(" CallLogs_Read", "ContactClub", new { contactId = Model.Id }))
+        )
+        )
+        <a href="@Url.Action("AddCallLog", "ContactClub", new { contactId = Model.Id })" class="btn btn-primary btnMargin"> Add Call</a>
+    </div>
+
+    @*<input type="hidden" id="inpAddEditCompanyUrl" data-url="@Url.Action("CompanyAddEdit","Admin")" />*@
+
+    <script>
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                alert(message);
+            }
+        }
+
+        var grid = $("#callLogTable").data("kendoGrid");
+        var callGrid = $("#callLogTable").data("kendoGrid");
+    </script>
+}

@@ -114,7 +114,7 @@ namespace BioTech
                 x.ValueCountLimit = int.MaxValue;
             });
 
-            //Register services
+            //Register services        
             services.AddScoped<ICompanyService, CompanyService>();
             services.AddScoped<ITouchLogService, TouchLogService>();
             services.AddScoped<IEmailSender, EmailSender>();
@@ -136,6 +136,10 @@ namespace BioTech
             services.AddScoped<ContractNumberService>();
             services.AddScoped<IContactClubService, ContactClubService>();
             services.AddScoped<RestClient>();
+            services.AddScoped<ICallService, CallService>();
+            services.AddScoped<IManageDataService, ManageDataService>();
+            services.AddScoped<ICountryService, CountryService>();
+            services.AddScoped<ILeagueService, LeagueService>();
             services.AddKendo();
         }
 

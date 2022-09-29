@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Manage.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -12,18 +13,22 @@ namespace Manage.ViewModels
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<CountryVM> AvailableCountries { get; set; } = new List<CountryVM>();
+        public IEnumerable<Country> AvailableCountries { get; set; } = new List<Country>();
         public string Country { get; set; }
         public string CountryCode { get; set; }
-        public List<TeamVM> AvailableTeams { get; set; } = new List<TeamVM>();
+        public List<Team> AvailableTeams { get; set; } = new List<Team>();
         public string Team { get; set; }
-        public List<LeagueVM> AvailableLeagues { get; set; } = new List<LeagueVM>();     
+        public IEnumerable<League> AvailableLeagues { get; set; } = new List<League>();     
         public string League { get; set; }
+        public int LeagueId { get; set; }
         public string Position { get; set; }
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public string Comments { get; set; }
         public string Status { get; set; }
         public bool IsAgent { get; set; }
+        public string Stadium { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
     }
 }

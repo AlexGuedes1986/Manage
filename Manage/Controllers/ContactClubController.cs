@@ -21,34 +21,53 @@ namespace Manage.Controllers
     public class ContactClubController : Controller
     {
         private readonly IContactClubService _contactClubService;
+        private readonly IManageDataService _manageDataService;
+        private readonly ICallService _callService;
+        private readonly ICountryService _countryService;
+        private readonly ILeagueService _leagueService;
         private readonly IConfiguration _configuration;
         private readonly RestClient _restClient;
         private readonly IMapper _mapper;
-        public ContactClubController(IContactClubService contactClubService, IConfiguration configuration, RestClient restClient, IMapper mapper)
+        public ContactClubController(IContactClubService contactClubService, ICallService callService, IConfiguration configuration
+            , RestClient restClient, IMapper mapper, IManageDataService manageDataService, ICountryService countryService
+            , ILeagueService leagueService)
         {
             _contactClubService = contactClubService;
             _configuration = configuration;
             _restClient = restClient;
             _mapper = mapper;
+            _callService = callService;
+            _manageDataService = manageDataService;
+            _countryService = countryService;
+            _leagueService = leagueService;
         }
 
         public IActionResult Index()
-        {            
+        {
             return View();
         }
 
         public IActionResult ContactClubs_Read([DataSourceRequest] DataSourceRequest request)
-        { 
-            var contactClubs = _contactClubService.GetAll();       
+        {
+            var contactClubs = _contactClubService.GetAll();
             var obj = contactClubs.ToDataSourceResult(request);
             return Json(obj);
         }
-
-        //[HttpGet("ContactClub/ContactClubAddEdit/{getCountries}/{contactClubVM?}/{codeLeague?}", Name = "ContactClubAddEdit")]
-        public IActionResult ContactClubAddEdit(bool doNotGetCountries, string codeCountry = "", string league = "", string teamId = "", ContactClubVM contactClubVMParameter = null)
+     
+        public IActionResult ContactClubAddEdit(int contactId = 0, bool doNotGetCountries = false, string codeCountry = "", string league = ""
+            , string teamId = "", ContactClubVM contactClubVMParameter = null)
         {
             ContactClubVM contactClubVM = new ContactClubVM();
-            var contactClubVMSession = HttpContext.Session.GetString("contactClubVM");
+            var contactClubVMSession = HttpContext.Session.GetString("contactClubVM");           
+            if (contactId > 0)
+            {
+                var contactClub = _contactClubService.GetById(contactId);
+                contactClubVM = _mapper.Map<ContactClubVM>(contactClub);
+                contactClubVM.AvailableCountries = _countryService.GetAll();
+                contactClubVM.AvailableLeagues = _leagueService.GetLeaguesByCountryCode(contactClubVM.CountryCode);
+                contactClubVM.AvailableTeams = ContactClubHelper.GetTeams(_restClient, contactClubVM.LeagueId);
+                return View(contactClubVM);
+            }
 
             if (!String.IsNullOrEmpty(contactClubVMSession))
             {
@@ -58,7 +77,7 @@ namespace Manage.Controllers
                 && String.IsNullOrEmpty(contactClubVMParameter.Position))
             {
                 if (!doNotGetCountries)
-                {                  
+                {
                     var countries = ContactClubHelper.GetCountries(_restClient);
                     contactClubVM.AvailableCountries = countries;
                 }
@@ -88,11 +107,62 @@ namespace Manage.Controllers
             else
             {
                 var contactClub = _mapper.Map<ContactClub>(contactClubVMParameter);
-                _contactClubService.Create(contactClub);             
+                if (contactClubVMParameter.Id == 0)
+                {
+                    contactClub.CreatedDate =  DateTime.Now;
+                    _contactClubService.Create(contactClub);
+                }
+                else
+                {
+                    contactClub.ModifiedDate = DateTime.Now;
+                    _contactClubService.Update(contactClub);
+                }
+
                 return View(contactClubVM);
             }
 
-           
+        }
+
+        public IActionResult CallLogs_Read([DataSourceRequest] DataSourceRequest request, int contactClubId)
+        {
+            IEnumerable<Call> data = _callService.GetCallLogsByContactId(contactClubId);
+            var obj = data.ToDataSourceResult(request);
+            return Json(obj);
+        }
+
+        public IActionResult AddCallLog(int contactId)
+        {
+            if (!(contactId > 0))
+            {
+                return RedirectToAction("Index");
+            }
+            ContactClub contactClub = _contactClubService.GetById(contactId);
+            Call call = new Call();
+            call.ContactClubId = contactId;           
+            return View(call);
+        }
+
+        [AcceptVerbs("Post")]
+        public IActionResult AddCallLog(Call model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+
+            model.Date = DateTime.Now;        
+            _callService.Create(model);
+            return RedirectToAction("ContactClubAddEdit", new { Id = model.ContactClubId });
+        }
+        public IActionResult RefreshDatabase()
+        {
+            var countries = ContactClubHelper.GetCountries(_restClient);
+            _manageDataService.UpdateCountries(countries);
+
+            List<League> leagues = ContactClubHelper.GetLeagues(_restClient);
+            _manageDataService.UpdateLeagues(leagues);
+            return new EmptyResult();
         }
     }
 }

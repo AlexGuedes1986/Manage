@@ -8,7 +8,7 @@
 </div>
 
 @Html.AntiForgeryToken()
-
+<a href=@Url.Action("RefreshDatabase")>Refresh Database</a>
 <div class="row rowNoMarginSide" style="width:100%;">
     <div class="col-md-12">
         <div class="box">
@@ -19,7 +19,7 @@
                 .Columns(columns =>
                 {
                 columns.Bound(c => c.Id).Title("&nbsp;")
-                .ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/ContactClub/EditContactClub/${id}'><span class='k-icon k-i-edit'></span>Edit</a>")
+                .ClientTemplate(@"<a role='button' class='k-button k-button-icontext' href='/ContactClub/ContactClubAddEdit?contactId=${id}'><span class='k-icon k-i-edit'></span>Edit</a>")
                 .Width(80).Filterable(false);
 
                 columns.Bound(c => c.Country).Title("Country").Width(120);

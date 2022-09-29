@@ -34,6 +34,7 @@ namespace BioTech.Helpers
             CreateMap<InvoiceProject, InvoiceProjectVM>();
             CreateMap<List<InvoiceProject>, List<InvoiceCsv>>();
             CreateMap<ContactClubVM, ContactClub>();
+            CreateMap<ContactClub, ContactClubVM>();
         }
     }
 }
